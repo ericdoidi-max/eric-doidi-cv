@@ -1,7 +1,8 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { generateResponse } from '../../services/geminiService';
 import { CONTACT } from '../../constants';
-import { Send, User, Bot, MapPin, Phone, Mail, Loader, Linkedin, FileText } from 'lucide-react';
+import { Send, User, Bot, MapPin, Phone, Mail, Loader, Linkedin, FileText, AlertTriangle } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -66,6 +67,31 @@ const CommView: React.FC = () => {
       const productionUrl = "https://eric-doidi-cv.vercel.app/";
       const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(productionUrl)}`;
       window.open(shareUrl, '_blank', 'width=600,height=600');
+  };
+
+  const handlePdfDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const fileName = "CV_Eric_Doidi.pdf";
+    
+    try {
+        // Vérifier si le fichier existe avant de tenter le téléchargement
+        const response = await fetch(`/${fileName}`, { method: 'HEAD' });
+        
+        if (response.ok) {
+            // Si le fichier existe, on lance le téléchargement forcé
+            const link = document.createElement('a');
+            link.href = `/${fileName}`;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            // Si le fichier n'existe pas (404), on prévient l'utilisateur
+            alert(`⚠️ FICHIER MANQUANT\n\nLe fichier "${fileName}" n'a pas encore été ajouté au projet.\n\nPOUR CORRIGER :\n1. Renommez votre CV en "${fileName}"\n2. Placez-le dans le dossier racine (public) avant de déployer sur Vercel.`);
+        }
+    } catch (error) {
+        alert("Une erreur est survenue lors de la vérification du fichier.");
+    }
   };
 
   return (
@@ -182,16 +208,13 @@ const CommView: React.FC = () => {
                     <span>Partager sur LinkedIn</span>
                 </button>
                 
-                <a 
-                    href="/CV_Eric_Doidi.pdf"
-                    download="CV_Eric_Doidi.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold font-mono transition-all uppercase text-sm flex items-center justify-center border border-slate-200 cursor-pointer"
+                <button 
+                    onClick={handlePdfDownload}
+                    className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold font-mono transition-all uppercase text-sm flex items-center justify-center border border-slate-200 cursor-pointer hover:shadow-sm"
                 >
                     <FileText size={18} className="mr-2" />
                     <span>[ TÉLÉCHARGER PDF ]</span>
-                </a>
+                </button>
                 <p className="text-[10px] text-center text-slate-400">Format standard pour archivage RH</p>
             </div>
         </div>
