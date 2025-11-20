@@ -24,12 +24,33 @@ Rules:
 4. If asked something not in the data, politely state that the record is unavailable.
 `;
 
+// Fonction robuste pour récupérer la clé API quel que soit l'environnement (Local, AI Studio, Vercel)
+const getApiKey = (): string | undefined => {
+  // 1. Vérification standard (AI Studio / Node)
+  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+    return process.env.API_KEY;
+  }
+  
+  // 2. Vérification Vite/Vercel (Client-side)
+  try {
+    // @ts-ignore - import.meta est spécifique à Vite
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_KEY) {
+      // @ts-ignore
+      return import.meta.env.VITE_API_KEY;
+    }
+  } catch (e) {
+    // Ignorer les erreurs si import.meta n'existe pas
+  }
+
+  return undefined;
+};
+
 let ai: GoogleGenAI | null = null;
+const apiKey = getApiKey();
 
 try {
-  // Initialize only if API key is present to prevent crash, though it should be there.
-  if (process.env.API_KEY) {
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (apiKey) {
+    ai = new GoogleGenAI({ apiKey: apiKey });
   }
 } catch (error) {
   console.error("Failed to initialize GoogleGenAI", error);
@@ -37,11 +58,10 @@ try {
 
 export const generateResponse = async (userMessage: string): Promise<string> => {
   if (!ai) {
-    return "Erreur système: Clé API non configurée. Veuillez vérifier l'environnement.";
+    return "Erreur système: Clé API non configurée. Veuillez vérifier l'environnement Vercel (Variable VITE_API_KEY manquante).";
   }
 
   try {
-    // Generate content using the updated SDK pattern
     const result = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       config: {
