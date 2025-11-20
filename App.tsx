@@ -13,7 +13,7 @@ const App: React.FC = () => {
   const renderView = () => {
     switch (currentView) {
       case ViewState.DASHBOARD:
-        return <DashboardView />;
+        return <DashboardView onChangeView={setCurrentView} />;
       case ViewState.LOGS:
         return <LogsView />;
       case ViewState.SPECS:
@@ -21,25 +21,24 @@ const App: React.FC = () => {
       case ViewState.COMMUNICATION:
         return <CommView />;
       default:
-        return <DashboardView />;
+        return <DashboardView onChangeView={setCurrentView} />;
     }
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen w-screen bg-slate-50 text-slate-800 overflow-hidden font-sans">
-      {/* Mobile / Tablet Warning for very small screens could go here, but we rely on responsive CSS */}
-      
+    <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full bg-slate-50 text-slate-800 font-sans md:overflow-hidden">
+      {/* Sidebar scrolls naturally on mobile, fixed on desktop */}
       <Sidebar currentView={currentView} onChangeView={setCurrentView} />
       
-      <main className="flex-1 flex flex-col min-w-0 bg-slate-50">
+      <main className="flex-1 flex flex-col min-w-0 bg-slate-50 h-full">
         <SystemStatus />
         
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 relative">
+        <div className="flex-1 p-4 md:p-8 relative md:overflow-y-auto">
           {/* Background Grid Effect - Light Version */}
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-multiply"></div>
           <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
           
-          <div className="max-w-7xl mx-auto relative z-10">
+          <div className="max-w-7xl mx-auto relative z-10 pb-10 md:pb-0">
             {renderView()}
           </div>
         </div>

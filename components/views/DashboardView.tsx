@@ -1,9 +1,14 @@
 import React from 'react';
 import { EXPERIENCES, SKILLS, BIO_SUMMARY } from '../../constants';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { TrendingUp, Users, Briefcase, DollarSign } from 'lucide-react';
+import { TrendingUp, Users, Briefcase, DollarSign, Bot, ArrowRight, Sparkles } from 'lucide-react';
+import { ViewState } from '../../types';
 
-const DashboardView: React.FC = () => {
+interface DashboardViewProps {
+  onChangeView: (view: ViewState) => void;
+}
+
+const DashboardView: React.FC<DashboardViewProps> = ({ onChangeView }) => {
   // Aggregate KPIs manually for the dashboard
   const kpis = [
     { title: "Budget Géré Max", value: "4 M€", icon: DollarSign, color: "text-amber-500", bg: "bg-amber-50" },
@@ -24,11 +29,21 @@ const DashboardView: React.FC = () => {
            <Briefcase size={120} />
         </div>
         <h2 className="text-2xl font-bold text-slate-800 mb-2 font-mono">RAPPORT DE SYNTHÈSE</h2>
-        <p className="text-slate-600 max-w-2xl leading-relaxed">{BIO_SUMMARY}</p>
+        <p className="text-slate-600 max-w-2xl leading-relaxed mb-6">{BIO_SUMMARY}</p>
+
+        {/* Call to Action AI */}
+        <button 
+            onClick={() => onChangeView(ViewState.COMMUNICATION)}
+            className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm font-bold font-mono hover:bg-blue-100 transition-colors group"
+        >
+            <Bot size={16} className="mr-2 text-blue-600" />
+            INTERROGER L'ASSISTANT VIRTUEL
+            <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+        </button>
       </div>
 
       {/* KPI Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {kpis.map((kpi, idx) => {
             const Icon = kpi.icon;
             return (

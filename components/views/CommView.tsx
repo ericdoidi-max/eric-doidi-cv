@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { generateResponse } from '../../services/geminiService';
 import { CONTACT } from '../../constants';
-import { Send, User, Bot, MapPin, Phone, Mail, Loader, Linkedin } from 'lucide-react';
+import { Send, User, Bot, MapPin, Phone, Mail, Loader, Linkedin, FileText } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -69,10 +69,10 @@ const CommView: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto md:h-[calc(100vh-12rem)]">
         
         {/* Chat Section */}
-        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl flex flex-col h-full overflow-hidden relative shadow-sm">
+        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl flex flex-col h-[500px] md:h-full overflow-hidden relative shadow-sm order-1 lg:order-none">
              <div className="absolute inset-0 bg-slate-50/50 z-0 pointer-events-none"></div>
              
              <div className="p-4 bg-white border-b border-slate-200 flex justify-between items-center z-10">
@@ -86,7 +86,7 @@ const CommView: React.FC = () => {
              <div className="flex-1 overflow-y-auto p-4 space-y-4 z-10 bg-slate-50/30">
                 {messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[80%] flex ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start space-x-2`}>
+                        <div className={`max-w-[85%] md:max-w-[80%] flex ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start space-x-2`}>
                             <div className={`p-3 rounded-2xl shadow-sm text-sm whitespace-pre-wrap ${
                                 msg.sender === 'user' 
                                 ? 'bg-blue-600 text-white rounded-tr-none' 
@@ -139,7 +139,7 @@ const CommView: React.FC = () => {
         </div>
 
         {/* Contact Card */}
-        <div className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between shadow-sm h-auto order-2 lg:order-none">
             <div>
                 <h3 className="text-lg font-bold text-slate-800 font-mono mb-6 border-b border-slate-100 pb-2">COORDONNÉES</h3>
                 <div className="space-y-6">
@@ -147,9 +147,9 @@ const CommView: React.FC = () => {
                         <div className="p-2.5 bg-slate-50 rounded-lg group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors text-slate-500">
                             <MapPin size={20} />
                         </div>
-                        <div>
+                        <div className="overflow-hidden">
                             <div className="text-xs text-slate-400 uppercase font-bold tracking-wider">Localisation</div>
-                            <div className="text-slate-800 text-sm font-medium">{CONTACT.address}</div>
+                            <div className="text-slate-800 text-sm font-medium truncate">{CONTACT.address}</div>
                         </div>
                     </div>
                     <div className="flex items-start space-x-3 group cursor-pointer">
@@ -165,9 +165,9 @@ const CommView: React.FC = () => {
                         <div className="p-2.5 bg-slate-50 rounded-lg group-hover:bg-purple-50 group-hover:text-purple-600 transition-colors text-slate-500">
                             <Mail size={20} />
                         </div>
-                        <div>
+                        <div className="overflow-hidden">
                             <div className="text-xs text-slate-400 uppercase font-bold tracking-wider">Email</div>
-                            <div className="text-slate-800 text-sm font-medium">{CONTACT.email}</div>
+                            <div className="text-slate-800 text-sm font-medium truncate">{CONTACT.email}</div>
                         </div>
                     </div>
                 </div>
@@ -182,9 +182,16 @@ const CommView: React.FC = () => {
                     <span>Partager sur LinkedIn</span>
                 </button>
                 
-                <button className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold font-mono transition-all uppercase text-sm flex items-center justify-center border border-slate-200">
-                    <span className="mr-2 text-xs">[ TÉLÉCHARGER PDF ]</span>
-                </button>
+                <a 
+                    href="/CV_Eric_Doidi.pdf"
+                    download="CV_Eric_Doidi.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold font-mono transition-all uppercase text-sm flex items-center justify-center border border-slate-200 cursor-pointer"
+                >
+                    <FileText size={18} className="mr-2" />
+                    <span>[ TÉLÉCHARGER PDF ]</span>
+                </a>
                 <p className="text-[10px] text-center text-slate-400">Format standard pour archivage RH</p>
             </div>
         </div>
