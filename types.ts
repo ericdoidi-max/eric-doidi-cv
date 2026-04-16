@@ -33,5 +33,5 @@ export enum ViewState {
   DASHBOARD = 'DASHBOARD',
   LOGS = 'LOGS', // Experience
   SPECS = 'SPECS', // Skills & Formation
-  COMMUNICATION = 'COMMUNICATION', // Chat & Contact
+  CONTACT = 'CONTACT', // Contact & Downloads
 }
