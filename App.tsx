@@ -4,7 +4,7 @@ import SystemStatus from './components/SystemStatus';
 import DashboardView from './components/views/DashboardView';
 import LogsView from './components/views/LogsView';
 import SpecsView from './components/views/SpecsView';
-import ContactView from './components/views/ContactView';
+import CommView from './components/views/CommView';
 import { ViewState } from './types';
 
 const App: React.FC = () => {
@@ -18,8 +18,8 @@ const App: React.FC = () => {
         return <LogsView />;
       case ViewState.SPECS:
         return <SpecsView />;
-      case ViewState.CONTACT:
-        return <ContactView />;
+      case ViewState.COMMUNICATION:
+        return <CommView />;
       default:
         return <DashboardView onChangeView={setCurrentView} />;
     }
