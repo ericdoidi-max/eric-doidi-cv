@@ -1,63 +1,20 @@
-# Eric Doidi — System Interface (CV Interactif)
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
 
-Application React + Vite avec assistant IA Gemini.
+# Run and deploy your AI Studio app
 
----
+This contains everything you need to run your app locally.
 
-## Déploiement Vercel
+View your app in AI Studio: https://ai.studio/apps/0fd9132f-79bb-4941-93e9-aa3c9b48867c
 
-### 1. Pré-requis
-- Compte Vercel connecté au dépôt Git
-- Clé API Gemini : https://aistudio.google.com/apikey
+## Run Locally
 
-### 2. Configuration dans Vercel
-Dans **Settings → Environment Variables**, ajouter :
+**Prerequisites:**  Node.js
 
-| Nom               | Valeur                  | Environnement                       |
-|-------------------|-------------------------|-------------------------------------|
-| `GEMINI_API_KEY`  | *(votre clé Gemini)*    | Production, Preview, Development    |
 
-### 3. Déploiement
-Vercel détecte automatiquement Vite et utilise :
-- `buildCommand` : `vite build`
-- `outputDirectory` : `dist`
-- Les fonctions dans `/api/*` sont déployées en serverless
-
-Aucune configuration manuelle nécessaire au-delà des variables d'environnement.
-
----
-
-## Développement local
-
-```bash
-npm install
-echo "GEMINI_API_KEY=votre_cle" > .env.local
-npm run dev
-```
-
-Ouvrir http://localhost:3000
-
-Pour tester `/api/gemini/generate` en local, utiliser Vercel CLI :
-
-```bash
-npm i -g vercel
-vercel dev
-```
-
----
-
-## Structure
-
-```
-.
-├── api/
-│   └── gemini/
-│       └── generate.ts      # Serverless function Vercel
-├── components/              # Composants React
-├── services/                # Client API (fetch /api/gemini/generate)
-├── App.tsx                  # Composant racine
-├── index.html               # Entrée HTML + Tailwind CDN
-├── index.tsx                # Bootstrap React
-├── vercel.json              # Config Vercel (rewrites SPA)
-└── vite.config.ts           # Config Vite
-```
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
