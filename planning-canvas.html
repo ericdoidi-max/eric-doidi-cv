@@ -7,44 +7,40 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --vert:#d1fae5;--vert-border:#34d399;--vert-text:#065f46;
-  --bleu:#dbeafe;--bleu-border:#60a5fa;--bleu-text:#1e3a8a;
-  --gris:#f3f4f6;--gris-border:#9ca3af;--gris-text:#374151;
-  --rouge:#fee2e2;--rouge-border:#f87171;--rouge-text:#991b1b;
-  --jaune:#fef9c3;--jaune-border:#fbbf24;--jaune-text:#713f12;
-  --acti:#d1fae5;--acti-border:#10b981;--acti-text:#064e3b;
+  --vert:#d1fae5;--vert-border:#34d399;
+  --bleu:#dbeafe;--bleu-border:#60a5fa;
+  --gris:#f3f4f6;--gris-border:#9ca3af;
+  --rouge:#fee2e2;--rouge-border:#f87171;
+  --jaune:#fef9c3;--jaune-border:#fbbf24;
+  --acti:#d1fae5;--acti-border:#10b981;
   --bg:#f1f5f9;--card:#fff;--shadow:0 2px 8px rgba(0,0,0,.09);--r:10px;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);min-height:100vh;padding:12px;color:#1e293b;font-size:14px}
 
-/* ── HEADER ── */
 .header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:10px 18px;margin-bottom:12px}
 .header h1{font-size:1rem;font-weight:800;letter-spacing:-.3px}
 .hcontrols{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .period-badge{font-size:.72rem;color:#64748b;background:#f1f5f9;padding:3px 10px;border-radius:20px;font-weight:600}
 
-/* ── BUTTONS ── */
 .btn{padding:5px 13px;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:700;transition:filter .15s;white-space:nowrap}
 .btn:hover{filter:brightness(.92)}
 .btn-primary{background:#3b82f6;color:#fff}
 .btn-ghost{background:#e2e8f0;color:#334155}
 .btn-indigo{background:#6366f1;color:#fff}
+.btn-gcal{background:#ea4335;color:#fff}
 .btn-save{background:#22c55e;color:#fff;font-size:.72rem;padding:4px 9px}
 
-/* ── PERIOD SCREEN ── */
 .period-screen{max-width:400px;margin:80px auto;background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:36px 32px;text-align:center}
 .period-screen h2{font-size:1.1rem;margin-bottom:8px}
 .period-screen p{color:#64748b;font-size:.82rem;margin-bottom:24px}
 .period-screen input{width:90px;padding:8px 12px;border:2px solid #3b82f6;border-radius:7px;font-size:1rem;text-align:center;margin-right:8px}
 .period-screen input:focus{outline:none;border-color:#6366f1}
 
-/* ── LÉGENDE ── */
 .legend{display:flex;gap:10px;flex-wrap:wrap;background:#fff;border-radius:var(--r);padding:8px 16px;box-shadow:var(--shadow);margin-bottom:10px;font-size:.72rem}
 .li{display:flex;align-items:center;gap:4px;font-weight:600;color:#475569}
 .ld{width:9px;height:9px;border-radius:50%}
 .ld-v{background:#34d399}.ld-b{background:#60a5fa}.ld-g{background:#9ca3af}.ld-r{background:#f87171}.ld-y{background:#fbbf24}
 
-/* ── NAV SEMAINES ── */
 .nav-weeks{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px}
 .nav-weeks::-webkit-scrollbar{height:4px}
 .nav-weeks::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
@@ -52,16 +48,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .week-tab.active{background:#3b82f6;color:#fff;border-color:#2563eb}
 .week-tab:hover:not(.active){border-color:#93c5fd;color:#1e3a8a}
 
-/* ── WEEK HEADER ── */
 .week-header{background:#fff;border-radius:var(--r);padding:9px 16px;margin-bottom:10px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px}
 .week-title{font-size:.88rem;font-weight:800;color:#1e293b}
 .week-summary{font-size:.72rem;color:#64748b}
 
-/* ── CANVAS CONTAINER ── */
-.canvas-h{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px}
+.canvas-h{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:10px}
 .canvas-v{display:flex;flex-direction:column;gap:8px}
 
-/* ── DAY CARD ── */
 .day-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:11px;border-top:4px solid #e2e8f0;display:flex;flex-direction:column;gap:7px;transition:border-top-color .2s}
 .day-card.l-tt{border-top-color:var(--vert-border);background:var(--vert)}
 .day-card.l-acti{border-top-color:var(--acti-border);background:var(--acti)}
@@ -78,6 +71,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .day-select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:6px;font-size:.77rem;background:rgba(255,255,255,.75);cursor:pointer;color:#334155}
 .day-select:focus{outline:2px solid #93c5fd;border-color:#3b82f6}
 
+.pos-veille-row{display:flex;align-items:center;gap:5px;font-size:.72rem;color:#475569;font-weight:600}
+.pos-veille-row select{flex:1;padding:3px 6px;border:1px solid #e2e8f0;border-radius:5px;font-size:.72rem;background:rgba(255,255,255,.8);cursor:pointer;color:#334155}
+
 .dep-input{width:100%;padding:5px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:.77rem;background:rgba(255,255,255,.75);color:#334155}
 .dep-input:focus{outline:2px solid #93c5fd;border-color:#3b82f6}
 .dep-input::placeholder{color:#94a3b8}
@@ -85,19 +81,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .trajet-chip{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:4px;background:#fee2e2;color:#991b1b}
 .tampon-chip{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:4px;background:#fef3c7;color:#92400e}
 .depart-chip{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:4px;background:#ede9fe;color:#5b21b6}
+.retour-chip{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:4px;background:#fee2e2;color:#991b1b}
 
-.day-notes{flex:1;min-height:58px;padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:.75rem;line-height:1.5;color:#334155;background:rgba(255,255,255,.6);cursor:text;white-space:pre-wrap}
+.day-notes{flex:1;min-height:54px;padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:.75rem;line-height:1.5;color:#334155;background:rgba(255,255,255,.6);cursor:text;white-space:pre-wrap}
 .day-notes:empty::before{content:attr(data-ph);color:#94a3b8;font-style:italic}
 .day-notes:focus{outline:2px solid #93c5fd}
 
 .day-footer{display:flex;justify-content:flex-end}
 
-/* ── ALERT ── */
-.alert{background:#fef9c3;border:1px solid #fde047;border-radius:7px;padding:8px 14px;font-size:.77rem;color:#713f12;margin-bottom:10px;font-weight:600}
-
-/* ── TOAST ── */
 .toast{position:fixed;bottom:18px;right:18px;background:#22c55e;color:#fff;padding:9px 18px;border-radius:8px;font-size:.82rem;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.2);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;z-index:9999}
 .toast.show{opacity:1;transform:translateY(0)}
+
+/* Modal ICS */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:var(--r);box-shadow:0 8px 32px rgba(0,0,0,.2);padding:28px 24px;max-width:460px;width:100%}
+.modal h3{font-size:1rem;font-weight:800;margin-bottom:14px}
+.modal p{font-size:.8rem;color:#475569;margin-bottom:16px;line-height:1.5}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.modal label{display:flex;align-items:center;gap:7px;font-size:.8rem;font-weight:600;margin-bottom:8px;cursor:pointer;color:#334155}
+.modal label input[type=checkbox]{width:15px;height:15px;accent-color:#ea4335}
 
 @media(max-width:540px){.canvas-h{grid-template-columns:1fr}}
 @media print{.hcontrols,.nav-weeks,.btn{display:none!important}}
@@ -106,21 +108,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <body>
 <div id="app"></div>
 <div class="toast" id="toast">✅ Sauvegardé</div>
+<div id="modal-root"></div>
 
 <script>
-// ─── CONSTANTES ───────────────────────────────────────────────────────────────
-const SK = 'planningCanvasV3';
-const JOURS   = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-const MOIS    = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-const MOIS_C  = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+const SK = 'planningCanvasV4';
+const JOURS  = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const MOIS_C = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+const MOIS_L = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
 const LIEUX = [
-  {v:'tt',    l:'🏠 TT Tours',       cls:'l-tt',    emoji:'🏠'},
-  {v:'acti',  l:'🏭 Acticampus',     cls:'l-acti',  emoji:'🏭'},
-  {v:'lille', l:'🏢 Lille Bureau',   cls:'l-lille', emoji:'🏢'},
-  {v:'dep',   l:'🟧 Déplacement',    cls:'l-dep',   emoji:'🟧'},
-  {v:'repos', l:'🛋️ Repos',          cls:'l-repos', emoji:'🛋️'},
-  {v:'trajet',l:'🚗 Trajet',         cls:'l-trajet',emoji:'🚗'},
+  {v:'tt',    l:'🏠 TT Tours',            cls:'l-tt',    emoji:'🏠'},
+  {v:'acti',  l:'🏭 Tours Acticampus',    cls:'l-acti',  emoji:'🏭'},
+  {v:'lille', l:'🏢 Lille Bureau',        cls:'l-lille', emoji:'🏢'},
+  {v:'dep',   l:'🟧 Déplacement',         cls:'l-dep',   emoji:'🟧'},
+  {v:'repos', l:'🛋️ Repos',               cls:'l-repos', emoji:'🛋️'},
+  {v:'trajet',l:'🚗 Trajet',              cls:'l-trajet',emoji:'🚗'},
 ];
 
 const TRAJETS = [
@@ -129,7 +131,12 @@ const TRAJETS = [
   {v:'veille',l:'🌙 Départ la veille'},
 ];
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
+const POS_VEILLE = [
+  {v:'tours', l:'🏠 Tours'},
+  {v:'lil',   l:'🏢 Lille'},
+  {v:'autre', l:'📍 Ailleurs'},
+];
+
 let S = { months:0, start:null, view:'h', week:0, days:{} };
 
 function loadState(){
@@ -142,7 +149,6 @@ function saveState(){
   localStorage.setItem(SK, JSON.stringify({...S, start: S.start ? S.start.toISOString() : null}));
 }
 
-// ─── DATES ────────────────────────────────────────────────────────────────────
 function getMonday(d){
   const t = new Date(d);
   const day = t.getDay();
@@ -153,6 +159,7 @@ function getMonday(d){
 function fmtKey(d){ return d.toISOString().slice(0,10); }
 function fmtDate(d){ return `${d.getDate()} ${MOIS_C[d.getMonth()]} ${d.getFullYear()}`; }
 function fmtShort(d){ return `${d.getDate()} ${MOIS_C[d.getMonth()]}`; }
+function fmtICS(d){ return d.toISOString().slice(0,10).replace(/-/g,''); }
 
 function getWeeks(){
   const weeks=[], end=new Date(S.start);
@@ -162,7 +169,6 @@ function getWeeks(){
   return weeks;
 }
 
-// ─── DEFAULTS ─────────────────────────────────────────────────────────────────
 function defaultLieu(dow){
   if(dow===0||dow===6) return 'repos';
   if(dow===1||dow===5) return 'tt';
@@ -174,12 +180,23 @@ function defaultTrajet(dow, lieu){
   return 'place';
 }
 
-// ─── RENDER ENGINE ────────────────────────────────────────────────────────────
+/* Auto-dériver posVeille depuis le lieu du jour précédent */
+function computePosVeille(key){
+  if(S.days[key]?.posVeille) return S.days[key].posVeille;
+  const d = new Date(key);
+  d.setDate(d.getDate()-1);
+  const pk = fmtKey(d);
+  const prevLieu = (S.days[pk]||{}).lieu || defaultLieu(d.getDay());
+  if(prevLieu==='lille') return 'lil';
+  if(prevLieu==='dep' || prevLieu==='trajet') return 'autre';
+  return 'tours';
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
 function render(){
   const app = document.getElementById('app');
   if(!S.months || !S.start){ app.innerHTML = renderPeriodScreen(); return; }
   app.innerHTML = renderMain();
-  attachWeekEvents();
   renderWeek();
 }
 
@@ -187,7 +204,8 @@ function renderPeriodScreen(){
   return `<div class="period-screen">
     <h2>📅 Sur combien de mois fait-on le point ?</h2>
     <p>Le mois en cours compte pour 1 · maximum 12</p>
-    <input type="number" id="mi" min="1" max="12" value="2" autofocus>
+    <input type="number" id="mi" min="1" max="12" value="2" autofocus
+      onkeydown="if(event.key==='Enter') initPeriod()">
     <button class="btn btn-primary" onclick="initPeriod()">Valider</button>
   </div>`;
 }
@@ -201,13 +219,14 @@ function renderMain(){
     <h1>📆 Planning Canvas</h1>
     <div class="hcontrols">
       <span class="period-badge">${S.months} mois · ${fmtDate(S.start)} → ${fmtDate(end)}</span>
+      <button class="btn btn-gcal" onclick="showICSModal()">📅 Google Agenda</button>
       <button class="btn btn-indigo" onclick="toggleView()">🔄 Basculer Vue</button>
       <button class="btn btn-ghost" onclick="resetPeriod()">📅 Période</button>
-      <button class="btn btn-ghost" onclick="exportJSON()">💾 Export</button>
+      <button class="btn btn-ghost" onclick="exportJSON()">💾 Export JSON</button>
     </div>
   </div>
   <div class="legend">
-    <div class="li"><div class="ld ld-v"></div>TT Tours / Acticampus</div>
+    <div class="li"><div class="ld ld-v"></div>TT Tours / Tours Acticampus</div>
     <div class="li"><div class="ld ld-b"></div>Lille Bureau</div>
     <div class="li"><div class="ld ld-g"></div>Repos</div>
     <div class="li"><div class="ld ld-r"></div>Trajet 6h / Tampon</div>
@@ -217,15 +236,6 @@ function renderMain(){
   <div id="weekContent"></div>`;
 }
 
-function attachWeekEvents(){
-  document.addEventListener('keydown', e => {
-    if(e.key==='Enter' && document.getElementById('mi')){
-      initPeriod();
-    }
-  }, {once:true});
-}
-
-// ─── WEEK RENDER ──────────────────────────────────────────────────────────────
 function buildNav(){
   const weeks = getWeeks();
   const nav = document.getElementById('navWeeks');
@@ -236,33 +246,22 @@ function buildNav(){
   }).join('');
 }
 
-function goWeek(i){
-  S.week = i; saveState(); buildNav(); renderWeek();
-}
+function goWeek(i){ S.week=i; saveState(); buildNav(); renderWeek(); }
 
 function renderWeek(){
   buildNav();
-  const weeks = getWeeks();
-  if(S.week >= weeks.length) S.week = 0;
-  const ws = weeks[S.week];
-  const we = new Date(ws); we.setDate(we.getDate()+6);
-  const wc = document.getElementById('weekContent');
+  const weeks=getWeeks();
+  if(S.week>=weeks.length) S.week=0;
+  const ws=weeks[S.week];
+  const we=new Date(ws); we.setDate(we.getDate()+6);
+  const wc=document.getElementById('weekContent');
   if(!wc) return;
-
-  // Summary
-  const summary = buildSummary(ws);
-
-  // Cards
-  const cards = [];
-  for(let i=0;i<7;i++){
-    const d = new Date(ws); d.setDate(d.getDate()+i);
-    cards.push(buildCard(d));
-  }
-
-  wc.innerHTML = `
+  const cards=[];
+  for(let i=0;i<7;i++){ const d=new Date(ws); d.setDate(d.getDate()+i); cards.push(buildCard(d)); }
+  wc.innerHTML=`
     <div class="week-header">
       <div class="week-title">Semaine du ${fmtDate(ws)} au ${fmtDate(we)}</div>
-      <div class="week-summary">${summary}</div>
+      <div class="week-summary">${buildSummary(ws)}</div>
     </div>
     <div class="canvas-${S.view}" id="cardsGrid">${cards.join('')}</div>`;
 }
@@ -272,7 +271,7 @@ function buildSummary(ws){
   for(let i=0;i<7;i++){
     const d=new Date(ws); d.setDate(d.getDate()+i);
     const key=fmtKey(d), dow=d.getDay();
-    const lieu=(S.days[key]||{}).lieu || defaultLieu(dow);
+    const lieu=(S.days[key]||{}).lieu||defaultLieu(dow);
     counts[lieu]=(counts[lieu]||0)+1;
   }
   const map={tt:'🏠',acti:'🏭',lille:'🏢',dep:'🟧',repos:'🛋️',trajet:'🚗'};
@@ -280,31 +279,53 @@ function buildSummary(ws){
 }
 
 function buildCard(date){
-  const key = fmtKey(date);
-  const dow = date.getDay();
-  const saved = S.days[key] || {};
-  const lieu   = saved.lieu   || defaultLieu(dow);
-  const trajet = saved.trajet || defaultTrajet(dow, lieu);
-  const notes  = saved.notes  !== undefined ? saved.notes : '';
-  const depVille = saved.depVille || '';
-  const lieuObj  = LIEUX.find(l=>l.v===lieu) || LIEUX[0];
-  const isWE = dow===0 || dow===6;
+  const key=fmtKey(date);
+  const dow=date.getDay();
+  const isWE=dow===0||dow===6;
+  const saved=S.days[key]||{};
+  const lieu  =saved.lieu   ||defaultLieu(dow);
+  const trajet=saved.trajet ||defaultTrajet(dow,lieu);
+  const notes =saved.notes  !==undefined?saved.notes:'';
+  const depVille=saved.depVille||'';
+  const lieuObj=LIEUX.find(l=>l.v===lieu)||LIEUX[0];
 
-  // Chips trajet
-  const showTrajetChips = trajet==='matin'||trajet==='veille';
-  const trajetChips = showTrajetChips ? `
-    <div class="trajet-chip">🚗 Trajet 6h — départ ${trajet==='veille'?'avant 16h30':'à partir de 17h00'}</div>
-    <div class="tampon-chip">⏳ +1h tampon avant 1ère réunion</div>` : '';
+  /* ── Chips trajet aller (vers Lille) ── */
+  const showAllerChips=(lieu==='lille')&&(trajet==='matin'||trajet==='veille');
+  const allerChips=showAllerChips?`
+    <div class="trajet-chip">🚗 Tours→Lille 6h — départ ${trajet==='veille'?'avant 16h30':'à partir de 17h00'}</div>
+    <div class="tampon-chip">⏳ +1h tampon avant 1ère réunion</div>`:'';
 
-  const depField = lieu==='dep' ? `<input class="dep-input" type="text" placeholder="🟧 Ville…"
-    value="${esc(depVille)}" id="dv-${key}" oninput="onDepVille('${key}',this.value)">` : '';
+  /* ── Chip lundi Lille ── */
+  const departChip=(dow===1&&lieu==='lille')?
+    `<div class="depart-chip">⚠️ Lundi Lille : départ dim. soir ou lun. matin ?</div>`:'';
 
-  const notesDefault = isWE && !notes
-    ? (dow===6 ? '🏠 Tours — week-end' : dow===0 ? '🏠 Tours — week-end' : '')
-    : notes;
+  /* ── Champ ville déplacement ── */
+  const depField=lieu==='dep'?`<input class="dep-input" type="text" placeholder="🟧 Ville de déplacement…"
+    value="${esc(depVille)}" id="dv-${key}" oninput="onDepVille('${key}',this.value)">`:'';
 
-  const departChip = (dow===1 && lieu==='lille')
-    ? `<div class="depart-chip">⚠️ Lundi Lille : départ dim. soir ou lun. matin ?</div>` : '';
+  /* ── Sélecteur "Hier j'étais à" + chips retour ── */
+  let posVeilleBlock='';
+  let retourChips='';
+  if(!isWE && lieu!=='repos' && lieu!=='trajet'){
+    const pv=computePosVeille(key);
+    posVeilleBlock=`<div class="pos-veille-row">
+      <span>Hier j'étais à :</span>
+      <select onchange="onPosVeille('${key}',this.value)">
+        ${POS_VEILLE.map(p=>`<option value="${p.v}"${p.v===pv?' selected':''}>${p.l}</option>`).join('')}
+      </select>
+    </div>`;
+    if(pv==='lil' && lieu!=='lille'){
+      retourChips=`
+        <div class="retour-chip">🚗 Retour Lille→Tours 6h — départ avant 16h30</div>
+        <div class="tampon-chip">⏳ +1h tampon avant 1ère réunion</div>`;
+    }
+    if(pv==='lil' && lieu==='lille'){
+      retourChips=`<div class="tampon-chip">📍 Déjà à Lille — pas de trajet</div>`;
+    }
+  }
+
+  /* ── Notes default weekend ── */
+  const notesDisplay=isWE&&!notes?'🏠 Tours — week-end':notes;
 
   return `<div class="day-card ${lieuObj.cls}" id="card-${key}">
     <div class="day-head">
@@ -318,72 +339,45 @@ function buildCard(date){
       ${LIEUX.map(l=>`<option value="${l.v}"${l.v===lieu?' selected':''}>${l.l}</option>`).join('')}
     </select>
     ${depField}
+    ${posVeilleBlock}
     <select class="day-select" onchange="onTrajet('${key}',this.value)">
       ${TRAJETS.map(t=>`<option value="${t.v}"${t.v===trajet?' selected':''}>${t.l}</option>`).join('')}
     </select>
-    ${trajetChips}
-    ${departChip}
+    ${allerChips}${retourChips}${departChip}
     <div class="day-notes" contenteditable="true" data-ph="Notes, réunions, contraintes…"
-         id="n-${key}" onblur="onNotes('${key}')">${escHtml(notesDefault)}</div>
+         id="n-${key}" onblur="onNotes('${key}')">${escHtml(notesDisplay)}</div>
     <div class="day-footer">
       <button class="btn btn-save" onclick="saveDay('${key}')">✓ Valider</button>
     </div>
   </div>`;
 }
 
-// ─── EVENT HANDLERS ───────────────────────────────────────────────────────────
-function onLieu(key, val){
-  ensureDay(key);
-  S.days[key].lieu = val;
-  const lo = LIEUX.find(l=>l.v===val)||LIEUX[0];
-  const card = document.getElementById('card-'+key);
-  if(!card) return;
-  LIEUX.forEach(l=>card.classList.remove(l.cls));
-  card.classList.add(lo.cls);
-  const em = document.getElementById('em-'+key);
-  if(em) em.textContent = lo.emoji;
-  // Re-render card for dep field / chips
-  const weeks = getWeeks();
-  const ws = weeks[S.week];
-  for(let i=0;i<7;i++){
-    const d=new Date(ws); d.setDate(d.getDate()+i);
-    if(fmtKey(d)===key){ rebuildCard(d); break; }
-  }
-  autoTrajetRule(key, val);
-}
-function onTrajet(key, val){ ensureDay(key); S.days[key].trajet=val; rebuildChips(key); }
-function onNotes(key){ const el=document.getElementById('n-'+key); if(el){ ensureDay(key); S.days[key].notes=el.innerText.trim(); } }
-function onDepVille(key, val){ ensureDay(key); S.days[key].depVille=val; }
-
+// ─── HANDLERS ─────────────────────────────────────────────────────────────────
 function ensureDay(key){ if(!S.days[key]) S.days[key]={}; }
 
-function autoTrajetRule(key, lieu){
-  // RÈGLE REPOS : si repos et veille = Lille → retour veille automatique
-  if(lieu==='repos'){
+function onLieu(key, val){
+  ensureDay(key);
+  S.days[key].lieu=val;
+  delete S.days[key].posVeille; // reset pour recalcul auto
+  rebuildCardByKey(key);
+  // RÈGLE REPOS : si repos et veille=Lille → marquer retour veille
+  if(val==='repos'){
     const d=new Date(key); d.setDate(d.getDate()-1);
     const pk=fmtKey(d);
-    const prev=S.days[pk]||{};
-    const pLieu=prev.lieu||defaultLieu(d.getDay());
-    if(pLieu==='lille' && (!prev.trajet||prev.trajet==='place')){
-      ensureDay(pk);
-      S.days[pk].trajet='veille';
-    }
+    const prevLieu=(S.days[pk]||{}).lieu||defaultLieu(d.getDay());
+    if(prevLieu==='lille'){ ensureDay(pk); if(!S.days[pk].trajet||S.days[pk].trajet==='place') S.days[pk].trajet='veille'; }
   }
 }
+function onTrajet(key, val){ ensureDay(key); S.days[key].trajet=val; rebuildCardByKey(key); }
+function onNotes(key){ const el=document.getElementById('n-'+key); if(el){ ensureDay(key); S.days[key].notes=el.innerText.trim(); } }
+function onDepVille(key, val){ ensureDay(key); S.days[key].depVille=val; }
+function onPosVeille(key, val){ ensureDay(key); S.days[key].posVeille=val; rebuildCardByKey(key); }
 
-function rebuildCard(date){
-  const key=fmtKey(date);
-  const card=document.getElementById('card-'+key);
-  if(!card) return;
-  card.outerHTML = buildCard(date);
-}
-
-function rebuildChips(key){
-  // lightweight: just re-render
+function rebuildCardByKey(key){
   const weeks=getWeeks(), ws=weeks[S.week];
   for(let i=0;i<7;i++){
     const d=new Date(ws); d.setDate(d.getDate()+i);
-    if(fmtKey(d)===key){ rebuildCard(d); break; }
+    if(fmtKey(d)===key){ const card=document.getElementById('card-'+key); if(card) card.outerHTML=buildCard(d); break; }
   }
 }
 
@@ -393,7 +387,13 @@ function saveDay(key){
   if(card){
     const sels=card.querySelectorAll('select');
     if(sels[0]) S.days[key].lieu=sels[0].value;
-    if(sels[1]) S.days[key].trajet=sels[1].value;
+    // sels[1] may be posVeille select (weekday non-repos/trajet) or trajet
+    // trajet select is always last select in card
+    const allSels=[...card.querySelectorAll('select')];
+    const trajetSel=allSels[allSels.length-1];
+    if(trajetSel) S.days[key].trajet=trajetSel.value;
+    const pvSel=card.querySelector('.pos-veille-row select');
+    if(pvSel) S.days[key].posVeille=pvSel.value;
     const dv=document.getElementById('dv-'+key);
     if(dv) S.days[key].depVille=dv.value;
   }
@@ -407,27 +407,113 @@ function initPeriod(){
   const el=document.getElementById('mi');
   const m=parseInt(el?.value||'2');
   if(!m||m<1||m>12) return;
-  S = { months:m, start:getMonday(new Date()), view:'h', week:0, days:{} };
+  S={months:m,start:getMonday(new Date()),view:'h',week:0,days:{}};
   saveState(); render();
 }
-
-function resetPeriod(){
-  S.months=0; S.start=null; saveState(); render();
-}
-
-function toggleView(){
-  S.view = S.view==='h'?'v':'h';
-  saveState();
-  const g=document.getElementById('cardsGrid');
-  if(g){ g.className='canvas-'+S.view; }
-}
-
+function resetPeriod(){ S.months=0; S.start=null; saveState(); render(); }
+function toggleView(){ S.view=S.view==='h'?'v':'h'; saveState(); const g=document.getElementById('cardsGrid'); if(g) g.className='canvas-'+S.view; }
 function exportJSON(){
   const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download=`planning-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  const a=document.createElement('a'); a.href=url; a.download=`planning-${new Date().toISOString().slice(0,10)}.json`; a.click();
   URL.revokeObjectURL(url);
+}
+
+// ─── EXPORT GOOGLE AGENDA (ICS) ───────────────────────────────────────────────
+function showICSModal(){
+  document.getElementById('modal-root').innerHTML=`
+  <div class="modal-bg" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <h3>📅 Export Google Agenda (.ics)</h3>
+      <p>Sélectionne les types d'événements à exporter :<br>
+        <em>Non-bloquant</em> = visible en privé, ne bloque pas les créneaux.<br>
+        <em>Bloquant</em> = indisponibilité totale.</p>
+      <label><input type="checkbox" id="ex-tt" checked> 🏠 Télétravail Tours <small>(privé, non-bloquant)</small></label>
+      <label><input type="checkbox" id="ex-acti" checked> 🏭 Tours Acticampus <small>(privé, non-bloquant)</small></label>
+      <label><input type="checkbox" id="ex-lille"> 🏢 Lille Bureau <small>(privé, bloquant)</small></label>
+      <label><input type="checkbox" id="ex-trajet" checked> 🚗 Trajets 6h <small>(bloquant)</small></label>
+      <label><input type="checkbox" id="ex-dep"> 🟧 Déplacements <small>(bloquant)</small></label>
+      <br>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+        <button class="btn btn-gcal" onclick="doExportICS()">⬇️ Télécharger .ics</button>
+      </div>
+    </div>
+  </div>`;
+}
+function closeModal(){ document.getElementById('modal-root').innerHTML=''; }
+
+function doExportICS(){
+  const exTT   =document.getElementById('ex-tt').checked;
+  const exActi =document.getElementById('ex-acti').checked;
+  const exLille=document.getElementById('ex-lille').checked;
+  const exTraj =document.getElementById('ex-trajet').checked;
+  const exDep  =document.getElementById('ex-dep').checked;
+  closeModal();
+
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Planning Canvas//FR','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+
+  const weeks=getWeeks();
+  for(const ws of weeks){
+    for(let i=0;i<7;i++){
+      const d=new Date(ws); d.setDate(d.getDate()+i);
+      const key=fmtKey(d), dow=d.getDay();
+      const saved=S.days[key]||{};
+      const lieu=saved.lieu||defaultLieu(dow);
+      const trajet=saved.trajet||defaultTrajet(dow,lieu);
+      const pv=computePosVeille(key);
+      const nextD=new Date(d); nextD.setDate(nextD.getDate()+1);
+      const ds=fmtICS(d), de=fmtICS(nextD);
+
+      function addEvent(uid, summary, transp, dateS, dateE, desc){
+        lines.push('BEGIN:VEVENT',`UID:${uid}`,`DTSTART;VALUE=DATE:${dateS}`,`DTEND;VALUE=DATE:${dateE}`,
+          `SUMMARY:${summary}`,`CLASS:PRIVATE`,`TRANSP:${transp}`);
+        if(desc) lines.push(`DESCRIPTION:${desc.replace(/[\r\n]+/g,'\\n').replace(/,/g,'\\,')}`);
+        lines.push('END:VEVENT');
+      }
+
+      // TT Tours
+      if(lieu==='tt' && exTT)
+        addEvent(`tt-${key}@pc`,'🏠 Télétravail — Tours','TRANSPARENT',ds,de,saved.notes||'');
+
+      // Tours Acticampus
+      if(lieu==='acti' && exActi)
+        addEvent(`acti-${key}@pc`,'🏭 Tours Acticampus','TRANSPARENT',ds,de,saved.notes||'');
+
+      // Lille Bureau
+      if(lieu==='lille' && exLille)
+        addEvent(`lille-${key}@pc`,'🏢 Lille Bureau','OPAQUE',ds,de,saved.notes||'');
+
+      // Trajet aller Tours→Lille (lié au jour d'arrivée à Lille)
+      if(exTraj && lieu==='lille' && (trajet==='matin'||trajet==='veille')){
+        const tDate = trajet==='veille' ? fmtICS(new Date(d.getTime()-86400000)) : ds;
+        const tEnd  = trajet==='veille' ? ds : de;
+        addEvent(`traj-aller-${key}@pc`,'🚗 Trajet Tours→Lille (6h)','OPAQUE',tDate,tEnd,'Départ '+(trajet==='veille'?'avant 16h30':'à partir de 17h00'));
+      }
+
+      // Trajet retour Lille→Tours (lié au jour non-Lille avec posVeille=Lille)
+      if(exTraj && lieu!=='lille' && lieu!=='repos' && lieu!=='trajet' && pv==='lil')
+        addEvent(`traj-retour-${key}@pc`,'🚗 Trajet Lille→Tours (6h)','OPAQUE',ds,de,'Départ avant 16h30');
+
+      // Trajet explicite (jour entier marqué Trajet)
+      if(exTraj && lieu==='trajet')
+        addEvent(`traj-${key}@pc`,'🚗 Trajet (6h)','OPAQUE',ds,de,saved.notes||'');
+
+      // Déplacement
+      if(lieu==='dep' && exDep)
+        addEvent(`dep-${key}@pc`,`🟧 Déplacement${saved.depVille?' — '+saved.depVille:''}`,
+          'OPAQUE',ds,de,saved.notes||'');
+    }
+  }
+
+  lines.push('END:VCALENDAR');
+  const content=lines.join('\r\n');
+  const blob=new Blob([content],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`planning-agenda-${new Date().toISOString().slice(0,10)}.ics`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('📅 Fichier .ics prêt — importer dans Google Agenda');
 }
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
@@ -436,14 +522,13 @@ function escHtml(s){
   if(!s) return '';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
-
-function showToast(){
+function showToast(msg){
   const t=document.getElementById('toast');
+  t.textContent=msg||'✅ Sauvegardé';
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2000);
+  setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-// ─── BOOT ─────────────────────────────────────────────────────────────────────
 loadState();
 render();
 </script>
