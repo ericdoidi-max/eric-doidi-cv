@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Co-Pilote Planification & Logistique Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#bbf7d0',
+                            500: '#10b981',
+                            600: '#059669',
+                            800: '#166534',
+                            900: '#064e3b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #0d1e36 0%, #020617 100%);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        @media screen and (max-width: 768px) {
+            select, textarea, input { font-size: 16px !important; }
+        }
+    </style>
+</head>
+<body class="h-full text-slate-100 flex flex-col overflow-hidden selection:bg-brand-500 selection:text-slate-950">
+
+    <!-- ÉCRAN DE CHARGEMENT GLOBAL -->
+    <div id="globalLoadingScreen" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="space-y-5 text-center max-w-xs w-full p-6 bg-slate-900/60 border border-slate-800 rounded-2xl shadow-2xl">
+            <div class="relative w-14 h-16 mx-auto">
+                <div class="absolute inset-0 rounded-full border-4 border-slate-800"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-t-brand-500 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+            </div>
+            <div>
+                <h4 class="text-sm font-bold text-white tracking-wide">Traitement Logistique</h4>
+                <p id="globalLoadingText" class="text-xs text-slate-400 mt-1.5 font-medium">Connexion sécurisée aux API Google...</p>
+            </div>
+            <div class="w-full bg-slate-850 rounded-full h-1.5 overflow-hidden">
+                <div id="globalLoadingBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full w-0 transition-all duration-300 ease-out"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BARRE EN-TÊTE SUPÉRIEURE -->
+    <header class="bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/80 shrink-0 px-4 md:px-6 py-4 flex items-center justify-between z-40 shadow-2xl">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-400 hover:text-white focus:outline-none p-2 rounded-xl hover:bg-slate-800 transition active:scale-95" aria-label="Ouvrir le menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <div class="w-10 h-10 bg-gradient-to-tr from-brand-500 to-teal-400 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 shrink-0">
+                <svg class="w-6 h-6 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-sm md:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                    CO-PILOTE LOGISTIQUE
+                    <span class="text-[9px] md:text-[10px] bg-brand-500/10 text-brand-500 border border-brand-500/20 px-2 py-0.5 rounded-full font-semibold">v3.4 Pro Cloud</span>
+                </h1>
+                <p class="text-[10px] md:text-xs text-slate-400 hidden sm:block">Planification simplifiée & gestion des transits logistiques d'entreprise</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 md:gap-3">
+            <div id="saveBadge" class="hidden md:flex items-center gap-1.5 bg-brand-500/10 border border-brand-500/20 text-brand-500 text-[11px] px-2.5 py-1 rounded-full transition-all duration-300">
+                <span class="w-1.5 h-1.5 bg-brand-500 rounded-full animate-pulse"></span>
+                Sauvegardé
+            </div>
+
+            <button onclick="openConflictListModal()" id="globalWarningBtn" class="hidden items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 rounded-lg text-[10px] font-semibold animate-pulse transition">
+                <span id="globalWarningText">⚠️ Conflit !</span>
+            </button>
+
+            <button onclick="triggerWorkspaceScan()" class="bg-gradient-to-r from-brand-500 to-teal-600 hover:from-brand-400 hover:to-teal-500 text-slate-950 px-2.5 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-[11px] md:text-xs transition duration-200 shadow-lg shadow-brand-500/10 flex items-center gap-1.5 active:scale-95">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17" />
+                </svg>
+                <span class="hidden md:inline">Scanner Workspace</span>
+                <span class="md:hidden">Scanner</span>
+            </button>
+
+            <button onclick="toggleLayoutMode()" id="layoutBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-lg border border-slate-750 transition active:scale-95" title="Basculer le format d'affichage">
+                <svg id="gridIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- ZONE DE CONTENU PRINCIPALE + SIDEBAR -->
+    <div class="flex flex-1 overflow-hidden relative">
+
+        <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-25 hidden opacity-0 transition-opacity duration-300 lg:hidden"></div>
+
+        <!-- BARRE LATÉRALE DE NAVIGATION -->
+        <aside id="sidebarPanel" class="fixed lg:relative lg:translate-x-0 -translate-x-full w-76 sm:w-80 h-full bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between shrink-0 z-30 transition-all duration-300 ease-in-out">
+            <div class="p-4 overflow-y-auto space-y-6 flex-1">
+                <div class="flex lg:hidden justify-between items-center pb-3 border-b border-slate-855">
+                    <span class="text-xs font-bold text-brand-500 uppercase tracking-wider">Navigation Co-Pilote</span>
+                    <button onclick="toggleMobileSidebar()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 px-2">Navigation Mensuelle</h3>
+                    <nav class="space-y-1" id="monthNavList"></nav>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 px-2">Semaines du mois actif</h3>
+                    <div class="space-y-1" id="weekNavList"></div>
+                </div>
+
+                <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <span class="text-[10px] text-slate-500 uppercase block font-bold">Données de sauvegarde</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="exportBackupData()" class="px-2 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded text-[11px] text-slate-300 font-semibold transition">
+                            📤 Exporter
+                        </button>
+                        <label class="px-2 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded text-[11px] text-slate-300 font-semibold text-center cursor-pointer transition">
+                            📥 Importer
+                            <input type="file" id="importBackupBtn" onchange="importBackupData(event)" class="hidden" accept=".json">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Synthèse KPIs -->
+            <div class="p-4 bg-slate-950 border-t border-slate-800 space-y-3 shrink-0">
+                <h3 class="text-xs font-semibold text-brand-500" style="text-transform: uppercase; letter-spacing: 0.05em;">
+                    <svg class="w-4 h-4 text-brand-500 inline-block mr-1 align-text-bottom" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Statistiques d'Activité
+                </h3>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-center">
+                        <span class="text-[9px] text-slate-400 uppercase block">Temps de Trajet</span>
+                        <span class="text-sm font-bold text-red-400" id="kpiRouteHours">0h</span>
+                    </div>
+                    <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-center">
+                        <span class="text-[9px] text-slate-400 uppercase block">Télétravail</span>
+                        <span class="text-sm font-bold text-brand-500" id="kpiTtDays">0j</span>
+                    </div>
+                </div>
+                <div class="bg-slate-900/50 p-2 rounded-lg border border-slate-800 text-[9px] text-slate-400 flex gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Logistique de transit calculée automatiquement (+1h de sécurité incluse).</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ZONE DE CONTENU PRINCIPALE -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-slate-900/40">
+            <div class="bg-slate-950/60 border-b border-slate-800 px-4 md:px-6 py-3 shrink-0 flex flex-col md:flex-row items-center justify-between gap-3 z-10">
+                <div class="flex items-center w-full md:w-auto bg-slate-900/80 p-1 rounded-xl border border-slate-800 justify-between md:justify-start">
+                    <button onclick="setViewMode('week')" id="tabWeekBtn" class="flex-1 md:flex-none px-3.5 py-1.5 text-xs font-semibold rounded-lg transition duration-200 active:scale-95">
+                        Hebdo
+                    </button>
+                    <button onclick="setViewMode('two-weeks')" id="tabTwoWeeksBtn" class="flex-1 md:flex-none px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition duration-200 active:scale-95">
+                        Quinzaine
+                    </button>
+                    <button onclick="setViewMode('month')" id="tabMonthBtn" class="flex-1 md:flex-none px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition duration-200 active:scale-95">
+                        Mensuel
+                    </button>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                    <div class="flex items-center justify-between gap-1 bg-slate-900 rounded-lg border border-slate-800 p-1">
+                        <button onclick="changeWeek(-1)" class="p-2 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition active:scale-95" aria-label="Semaine précédente">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <span class="text-xs font-semibold px-2 min-w-[130px] sm:min-w-[150px] text-center text-slate-200" id="activePeriodLabel">Semaine du ...</span>
+                        <button onclick="changeWeek(1)" class="p-2 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition active:scale-95" aria-label="Semaine suivante">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1.5 sm:flex sm:items-center sm:gap-2">
+                        <button onclick="toggleModal('deplacementModal', true)" class="w-full sm:w-auto bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/20 text-[10px] sm:text-xs px-2.5 py-2 rounded-lg flex items-center justify-center gap-1 font-medium transition active:scale-95">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>+ Déplacement</span>
+                        </button>
+
+                        <button onclick="validateAllWeeks()" class="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold text-[10px] sm:text-xs px-2.5 py-2 rounded-lg flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md shadow-indigo-500/10" title="Verrouille toutes les semaines de la période">
+                            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Valider Global</span>
+                        </button>
+
+                        <button onclick="triggerCalendarSync()" class="w-full sm:w-auto bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold text-[10px] sm:text-xs px-2.5 py-2 rounded-lg flex items-center justify-center gap-1 transition active:scale-95">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span id="syncBtnLabel">Exporter</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 p-4 md:p-6 overflow-y-auto" id="viewContainer"></div>
+        </main>
+    </div>
+
+    <!-- MODAL D'INITIALISATION -->
+    <div id="initMonthsModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-6 text-center space-y-2 border-b border-slate-855 shrink-0">
+                <div class="w-12 h-12 bg-gradient-to-tr from-brand-500 to-teal-400 rounded-full flex items-center justify-center mx-auto text-slate-950">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <h3 class="text-base sm:text-lg font-bold text-white">Initialisation Co-Pilote</h3>
+                <p class="text-xs text-slate-400">Combien de mois souhaitez-vous visualiser dans l'application ?</p>
+            </div>
+            <form id="initMonthsForm" onsubmit="handleInitMonths(event)" class="p-6 space-y-4 overflow-y-auto">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">Nombre de mois à visualiser (Mois 1 = Juin 2026)</label>
+                    <select id="initMonthsCount" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:border-brand-500 focus:outline-none">
+                        <option value="1">1 mois (Juin 2026)</option>
+                        <option value="2">2 mois (Juin - Juillet)</option>
+                        <option value="3">3 mois (Juin - Août)</option>
+                        <option value="4">4 mois (Juin - Septembre)</option>
+                        <option value="6" selected>6 mois (Juin - Novembre)</option>
+                        <option value="12">12 mois (Juin 2026 - Mai 2027)</option>
+                    </select>
+                </div>
+                <div class="bg-slate-950/50 p-3 rounded-lg border border-brand-500/10 text-[11px] text-brand-500 leading-relaxed">
+                    💡 <strong>Calcul automatique :</strong> Tous les calculs de transitions et temps de trajet seront mis en cache sur cette période de manière dynamique.
+                </div>
+                <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold text-xs py-3 rounded-lg transition duration-200 shadow-md shadow-brand-500/10 active:scale-[0.98]">
+                    Valider et Démarrer
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL : GESTION DES CONFLITS -->
+    <div id="conflictModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-4 sm:p-5 border-b border-slate-800 bg-amber-500/5 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="p-2 bg-amber-500/10 text-amber-400 rounded-lg shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </span>
+                    <div>
+                        <h3 class="text-sm sm:text-base font-bold text-white leading-tight">Gestion des Écarts d'Agenda</h3>
+                        <p class="text-[11px] text-slate-400">Traitez vos écarts individuellement ou appliquez des actions groupées.</p>
+                    </div>
+                </div>
+                <button onclick="toggleModal('conflictModal', false)" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="px-4 sm:px-6 py-3 bg-slate-950 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0">
+                <span class="text-xs text-slate-400 font-semibold" id="conflictSummaryCount">0 écart(s) détecté(s)</span>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="resolveAllConflicts(true)" class="flex-1 sm:flex-none px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white border border-slate-700 rounded-lg transition active:scale-95">
+                        Conserver tout Co-Pilote (Écraser Agenda Pro)
+                    </button>
+                    <button onclick="resolveAllConflicts(false)" class="flex-1 sm:flex-none px-3.5 py-1.5 bg-amber-400 hover:bg-amber-300 text-xs font-bold text-slate-950 rounded-lg transition active:scale-95">
+                        Tout Aligner l'Application
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-3" id="conflictListContainer"></div>
+
+            <div class="p-4 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-400 text-center shrink-0">
+                💡 <strong>Astuce :</strong> L'alignement met à jour l'application ou l'agenda professionnel Dalkia pour correspondre à votre choix afin de garantir des itinéraires de transport optimisés.
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL : SCANNER WORKSPACE -->
+    <div id="scanModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg shrink-0">
+                        <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17" />
+                        </svg>
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white leading-tight">Analyse Workspace</h3>
+                        <p class="text-[11px] text-slate-400">Scan des flux Gmail & Google Agenda Pro...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 space-y-4 overflow-y-auto flex-1">
+                <div class="bg-slate-950 rounded-lg p-3 font-mono text-[11px] text-emerald-400/95 space-y-2 h-44 overflow-y-auto" id="scanConsole"></div>
+                <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div id="scanProgressBar" class="bg-emerald-500 h-1.5 w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL : DÉPLACEMENT HORS-ROUTINE -->
+    <div id="deplacementModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2 leading-tight">
+                    <span class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-ping shrink-0"></span>
+                    Déplacement Hors-Routine
+                </h3>
+                <button onclick="toggleModal('deplacementModal', false)" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form onsubmit="handleDeplacementSubmit(event)" class="p-5 space-y-4 overflow-y-auto">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Date du déplacement</label>
+                    <input type="date" id="depDate" required min="2026-06-01" max="2027-05-31" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white focus:border-brand-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Destination</label>
+                    <input type="text" id="depDest" required placeholder="ex: Paris, Lyon, Bordeaux..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white focus:border-brand-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Durée trajet aller (Heures)</label>
+                        <input type="number" id="depDuration" required min="0.5" step="0.5" value="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white focus:border-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Type de lieu</label>
+                        <select id="depType" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white focus:border-brand-500 focus:outline-none">
+                            <option value="Site">🏢 Site / Client</option>
+                            <option value="Acticampus">🏭 Acticampus</option>
+                            <option value="Autre">🌍 Autre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] text-slate-400 leading-normal">
+                    💡 <strong>Planification :</strong> L'ajout d'un déplacement ajuste automatiquement vos trajets et vos alertes de transit pour la semaine sélectionnée.
+                </div>
+                <div class="flex justify-end gap-2 pt-2 shrink-0">
+                    <button type="button" onclick="toggleModal('deplacementModal', false)" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition">Annuler</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 transition active:scale-[0.98]">Planifier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none max-w-[90vw] sm:max-w-md"></div>
+
+    <script>
+        const $ = s => document.querySelector(s);
+
+        // CORRECTIF : utiliser la date réelle du système plutôt qu'une date codée en dur
+        const CURRENT_DATE = new Date();
+
+        let appState = {};
+        let weeksArray = [];
+        let activeWeekIndex = 0;
+        let viewMode = 'week';
+        let layoutMode = 'grid';
+
+        const DAYS_OF_WEEK_FR = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+        let MONTHS = [];
+
+        function checkIfGasEnv() {
+            try {
+                return (typeof google !== 'undefined' && google.script && google.script.run) ? true : false;
+            } catch(e) {
+                return false;
+            }
+        }
+        const IS_GAS_ENV = checkIfGasEnv();
+
+        // --- UTILITAIRES ---
+
+        function fHeader(d) {
+            return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+        }
+
+        function fShort(d) {
+            return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(d);
+        }
+
+        function formatDateStr(d) {
+            return d.getFullYear() + '-' +
+                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                String(d.getDate()).padStart(2, '0');
+        }
+
+        // Parse une date ISO "YYYY-MM-DD" sans décalage de fuseau horaire
+        function parseDateLocal(dateStr) {
+            const p = dateStr.split('-');
+            return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+        }
+
+        function getFrenchHolidayName(dateStr) {
+            const holidays = {
+                '2026-07-14': "Fête Nationale",
+                '2026-08-15': "Assomption",
+                '2026-11-01': "La Toussaint",
+                '2026-11-11': "Armistice 1918",
+                '2026-12-25': "Noël",
+                '2027-01-01': "Jour de l'An",
+                '2027-03-29': "Lundi de Pâques",
+                '2027-05-01': "Fête du Travail",
+                '2027-05-06': "Jeudi de l'Ascension",
+                '2027-05-08': "Victoire 1945",
+                '2027-05-17': "Lundi de Pentecôte"
+            };
+            return holidays[dateStr] || null;
+        }
+
+        function getISOWeek(d) {
+            const date = new Date(d.getTime());
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+            const week1 = new Date(date.getFullYear(), 0, 4);
+            return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        }
+
+        function getNextDayStr(dateStr) {
+            const d = parseDateLocal(dateStr);
+            d.setDate(d.getDate() + 1);
+            return formatDateStr(d);
+        }
+
+        function findWeekIdx(d) {
+            if (!weeksArray || weeksArray.length === 0) return 0;
+            const targetTime = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+            const idx = weeksArray.findIndex(w => {
+                const monTime = new Date(w.monday.getFullYear(), w.monday.getMonth(), w.monday.getDate()).getTime();
+                const sunTime = new Date(w.sunday.getFullYear(), w.sunday.getMonth(), w.sunday.getDate()).getTime();
+                return targetTime >= monTime && targetTime <= sunTime;
+            });
+            return idx !== -1 ? idx : 0;
+        }
+
+        // --- ÉCRAN DE CHARGEMENT ---
+
+        function showGlobalLoading(text, percent) {
+            const screen = $('#globalLoadingScreen');
+            const txt    = $('#globalLoadingText');
+            const bar    = $('#globalLoadingBar');
+            if (!screen) return;
+            txt.innerText = text;
+            bar.style.width = `${percent}%`;
+            screen.classList.remove('hidden');
+            setTimeout(() => {
+                screen.classList.remove('opacity-0');
+                screen.classList.add('opacity-100');
+            }, 10);
+        }
+
+        function updateGlobalLoading(text, percent) {
+            const txt = $('#globalLoadingText');
+            const bar = $('#globalLoadingBar');
+            if (txt) txt.innerText = text;
+            if (bar) bar.style.width = `${percent}%`;
+        }
+
+        function hideGlobalLoading() {
+            const screen = $('#globalLoadingScreen');
+            if (!screen) return;
+            screen.classList.remove('opacity-100');
+            screen.classList.add('opacity-0');
+            setTimeout(() => screen.classList.add('hidden'), 300);
+        }
+
+        // --- CONSTANTES DE THÈME ---
+
+        const THEMING = {
+            'TT_Tours':    { bg: 'bg-emerald-500/10 border-emerald-500/35 text-emerald-300 hover:bg-emerald-500/20', tag: '🏠 TT Tours',      border: 'border-l-emerald-500', emoji: '🏠', colorClass: 'text-emerald-400' },
+            'Acticampus':  { bg: 'bg-teal-500/10 border-teal-500/35 text-teal-300 hover:bg-teal-500/20',             tag: '🏭 Acticampus',   border: 'border-l-teal-500',    emoji: '🏭', colorClass: 'text-teal-400' },
+            'Lille':       { bg: 'bg-blue-500/10 border-blue-500/35 text-blue-300 hover:bg-blue-500/20',             tag: '🏢 Lille Bureau', border: 'border-l-blue-500',    emoji: '🏢', colorClass: 'text-blue-400' },
+            'Hors_site':   { bg: 'bg-indigo-500/10 border-indigo-500/35 text-indigo-300 hover:bg-indigo-500/20',     tag: '🌍 Hors site',    border: 'border-l-indigo-500',  emoji: '🌍', colorClass: 'text-indigo-400' },
+            'Repos':       { bg: 'bg-slate-500/10 border-slate-500/35 text-slate-300 hover:bg-slate-500/20',         tag: '🛋️ Repos',       border: 'border-l-slate-500',   emoji: '🛋️', colorClass: 'text-slate-400' },
+            'Repos_JF':    { bg: 'bg-indigo-500/15 border-indigo-500/35 text-indigo-300 hover:bg-indigo-500/20',     tag: '🎉 Repos JF',     border: 'border-l-indigo-500',  emoji: '🎉', colorClass: 'text-indigo-400' },
+            'RTT':         { bg: 'bg-purple-500/10 border-purple-500/35 text-purple-300 hover:bg-purple-500/20',     tag: '⏳ RTT',          border: 'border-l-purple-500',  emoji: '⏳', colorClass: 'text-purple-400' },
+            'CP':          { bg: 'bg-pink-500/10 border-pink-500/35 text-pink-300 hover:bg-pink-500/20',             tag: '🌴 CP',           border: 'border-l-pink-500',    emoji: '🌴', colorClass: 'text-pink-400' },
+            'Deplacement': { bg: 'bg-amber-500/10 border-amber-500/35 text-amber-300 hover:bg-amber-500/20',         tag: '🟧 Déplacement',  border: 'border-l-amber-500',   emoji: '🚗', colorClass: 'text-amber-400' }
+        };
+
+        let mockGoogleAgenda = {
+            "2026-06-22": { position: "TT_Tours",    title: "Télétravail régulier Tours (Domicile)" },
+            "2026-06-23": { position: "Lille",       title: "Comité de Direction Pro - Lille" },
+            "2026-06-24": { position: "Lille",       title: "Présence Dalkia Lille Bureau" },
+            "2026-06-25": { position: "Lille",       title: "Soutenance projet - Lille Bureau" },
+            "2026-06-26": { position: "Lille",       title: "Suivi mensuel équipes - Lille Bureau" },
+            "2026-07-08": { position: "Deplacement", title: "Séminaire Stratégique de Direction Dalkia" }
+        };
+
+        // --- INITIALISATION ---
+
+        /**
+         * Génère le tableau weeksArray pour N mois à partir de Juin 2026.
+         * Chaque semaine est assignée au mois contenant son jeudi (norme ISO).
+         * CORRECTIF : fonction manquante dans la version originale.
+         */
+        function generateWeeks(N) {
+            weeksArray = [];
+            const START_YEAR  = 2026;
+            const START_MONTH = 5; // Juin (0-indexed)
+
+            const globalStart = new Date(START_YEAR, START_MONTH, 1);
+            const endMonth    = START_MONTH + N;
+            const globalEnd   = new Date(START_YEAR + Math.floor(endMonth / 12), endMonth % 12, 0);
+
+            // Premier lundi avant ou égal au début de la période
+            const firstMonday = new Date(globalStart);
+            const dow = firstMonday.getDay();
+            firstMonday.setDate(firstMonday.getDate() - (dow === 0 ? 6 : dow - 1));
+
+            let current    = new Date(firstMonday);
+            let weekIndex  = 0;
+
+            while (current <= globalEnd) {
+                const monday   = new Date(current);
+                const sunday   = new Date(current);
+                sunday.setDate(sunday.getDate() + 6);
+
+                // Le jeudi détermine le mois de la semaine (norme ISO)
+                const thursday    = new Date(monday);
+                thursday.setDate(thursday.getDate() + 3);
+                const monthOffset = (thursday.getFullYear() - START_YEAR) * 12 + thursday.getMonth() - START_MONTH;
+
+                if (monthOffset >= 0 && monthOffset < N) {
+                    weeksArray.push({
+                        index:         weekIndex,
+                        monday:        new Date(monday),
+                        sunday:        new Date(sunday),
+                        calendarWeek:  getISOWeek(thursday),
+                        monthName:     MONTHS[monthOffset]
+                    });
+                    weekIndex++;
+                }
+
+                current.setDate(current.getDate() + 7);
+            }
+        }
+
+        function handleInitMonths(event) {
+            event.preventDefault();
+            const N = parseInt($('#initMonthsCount').value, 10);
+
+            MONTHS = [];
+            const formatter = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' });
+            for (let m = 0; m < N; m++) {
+                let name = formatter.format(new Date(2026, 5 + m, 1));
+                MONTHS.push(name.charAt(0).toUpperCase() + name.slice(1));
+            }
+
+            generateWeeks(N);
+            showGlobalLoading("Initialisation du calendrier...", 15);
+
+            if (IS_GAS_ENV) {
+                updateGlobalLoading("Connexion à Google Workspace...", 40);
+                google.script.run
+                    .withSuccessHandler(function(propertiesData) {
+                        appState = {};
+                        if (propertiesData) {
+                            try { appState = JSON.parse(propertiesData) || {}; }
+                            catch(e) { console.warn("Données cloud corrompues, initialisation par défaut."); }
+                        }
+                        updateGlobalLoading("Configuration du planning...", 65);
+                        loadDataAndSync();
+                    })
+                    .withFailureHandler(function(err) {
+                        console.warn("Échec chargement cloud, repli local : ", err);
+                        loadDataAndSync();
+                    })
+                    .getStateFromProperties();
+            } else {
+                loadDataAndSync();
+            }
+
+            toggleModal('initMonthsModal', false);
+        }
+
+        function loadDataAndSync() {
+            loadData();
+
+            if (IS_GAS_ENV) {
+                updateGlobalLoading("Synchronisation avec Google Agenda...", 85);
+                const activeMonth = weeksArray[activeWeekIndex]?.monthName;
+                const filtered    = activeMonth ? weeksArray.filter(w => w.monthName === activeMonth) : [];
+
+                if (filtered.length > 0) {
+                    const startStr = formatDateStr(filtered[0].monday);
+                    const endStr   = formatDateStr(filtered[filtered.length - 1].sunday);
+
+                    google.script.run
+                        .withSuccessHandler(function(realEvents) {
+                            if (realEvents && Object.keys(realEvents).length > 0) {
+                                mockGoogleAgenda = { ...mockGoogleAgenda, ...realEvents };
+                            }
+                            updateGlobalLoading("Finalisation du rendu...", 98);
+                            recalculateAllTravels();
+                            renderAll();
+                            setTimeout(hideGlobalLoading, 400);
+                        })
+                        .withFailureHandler(function() {
+                            recalculateAllTravels();
+                            renderAll();
+                            setTimeout(hideGlobalLoading, 400);
+                        })
+                        .getCalendarEvents(startStr, endStr);
+                } else {
+                    recalculateAllTravels();
+                    renderAll();
+                    setTimeout(hideGlobalLoading, 400);
+                }
+            } else {
+                recalculateAllTravels();
+                renderAll();
+                setTimeout(hideGlobalLoading, 400);
+            }
+        }
+
+        function loadData() {
+            // CORRECTIF : ne pas charger depuis localStorage en environnement GAS
+            if (!IS_GAS_ENV) {
+                try { appState = JSON.parse(localStorage.getItem('copilot_planner_state_v3')) || {}; }
+                catch(e) { appState = {}; }
+                try { mockGoogleAgenda = JSON.parse(localStorage.getItem('copilot_mock_agenda_v3')) || mockGoogleAgenda; }
+                catch(e) {}
+            }
+
+            if (!appState) appState = {};
+
+            weeksArray.forEach(wk => {
+                for (let d = 0; d < 7; d++) {
+                    const date       = new Date(wk.monday);
+                    date.setDate(date.getDate() + d);
+                    const dStr       = formatDateStr(date);
+                    const holidayName = getFrenchHolidayName(dStr);
+
+                    if (!appState[dStr]) {
+                        const agendaDay = mockGoogleAgenda[dStr];
+                        let defaultPosition = 'Lille';
+                        if (holidayName)       defaultPosition = 'Repos_JF';
+                        else if (agendaDay)    defaultPosition = agendaDay.position;
+                        else if (d >= 5)       defaultPosition = 'Repos';
+
+                        appState[dStr] = {
+                            date:           dStr,
+                            dayOfWeek:      d,
+                            position:       defaultPosition,
+                            regime:         'Sur_place',
+                            notes:          holidayName ? `Jour férié : ${holidayName}` : '',
+                            isLocked:       false,
+                            isManualRegime: false,
+                            deplacement:    null,
+                            formation:      'none',
+                            formationStart: '09:00',
+                            formationEnd:   '17:00'
+                        };
+                    } else {
+                        if (holidayName && appState[dStr].position !== 'Repos_JF' && !appState[dStr].isLocked) {
+                            appState[dStr].position = 'Repos_JF';
+                            appState[dStr].regime   = 'Sur_place';
+                            appState[dStr].notes    = `Jour férié : ${holidayName}`;
+                        }
+                        if (!appState[dStr].hasOwnProperty('formation'))      appState[dStr].formation      = 'none';
+                        if (!appState[dStr].hasOwnProperty('formationStart')) appState[dStr].formationStart = '09:00';
+                        if (!appState[dStr].hasOwnProperty('formationEnd'))   appState[dStr].formationEnd   = '17:00';
+                    }
+                }
+            });
+
+            saveData();
+            activeWeekIndex = findWeekIdx(CURRENT_DATE);
+        }
+
+        function saveData() {
+            if (IS_GAS_ENV) {
+                google.script.run
+                    .withFailureHandler(err => console.error("Échec sauvegarde cloud : ", err))
+                    .saveStateToProperties(JSON.stringify(appState));
+            } else {
+                localStorage.setItem('copilot_planner_state_v3', JSON.stringify(appState));
+                localStorage.setItem('copilot_mock_agenda_v3', JSON.stringify(mockGoogleAgenda));
+            }
+
+            const badge = $('#saveBadge');
+            if (badge) {
+                badge.classList.remove('hidden');
+                setTimeout(() => badge.classList.add('hidden'), 1000);
+            }
+        }
+
+        // --- CALCUL DES TRAJETS ---
+
+        function recalculateAllTravels() {
+            weeksArray.forEach(wk => {
+                const weekDays = Array.from({length: 7}, (_, d) => {
+                    const date = new Date(wk.monday);
+                    date.setDate(date.getDate() + d);
+                    return appState[formatDateStr(date)];
+                });
+
+                weekDays.forEach((day, d) => {
+                    if (!day) return;
+                    if (!day.isManualRegime) day.regime = 'Sur_place';
+
+                    // Vendredi Lille → départ Tours le soir
+                    if (d === 4 && day.position === 'Lille' && !day.isManualRegime) {
+                        day.regime = 'Depart_LT_1630';
+                    }
+                    // Jour Lille suivi d'un jour repos/TT → départ anticipé
+                    if (d < 5 && day.position === 'Lille' && !day.isManualRegime) {
+                        const next = weekDays[d + 1];
+                        if (next && ['Repos', 'RTT', 'CP', 'TT_Tours', 'Acticampus', 'Repos_JF'].includes(next.position)) {
+                            day.regime = 'Depart_LT_1630';
+                        }
+                    }
+                    // Lundi Lille → départ matin depuis Tours
+                    if (d === 0 && day.position === 'Lille' && !day.isManualRegime) {
+                        day.regime = 'Depart_matin';
+                    }
+                    // Jour TT/Acticampus avant un jour Lille → départ pour Lille à 17h
+                    if (d > 0 && day.position === 'Lille') {
+                        const prev = weekDays[d - 1];
+                        if (prev && ['TT_Tours', 'Acticampus'].includes(prev.position) && !prev.isManualRegime) {
+                            prev.regime = 'Depart_TL_17';
+                        }
+                    }
+                });
+            });
+            saveData();
+        }
+
+        // --- RENDU ---
+
+        function renderAll() {
+            renderMonthNav();
+            renderWeekDropdown();
+            renderActiveView();
+            updateKpis();
+            checkConflicts();
+            $('#syncBtnLabel').innerText = IS_GAS_ENV ? "Exporter" : "Exporter ICS";
+        }
+
+        function renderMonthNav() {
+            if (weeksArray.length === 0) return;
+            const activeMonth = weeksArray[activeWeekIndex]?.monthName || MONTHS[0];
+            $('#monthNavList').innerHTML = MONTHS.map((m, index) => {
+                const active = activeMonth === m;
+                return `
+                    <button onclick="selectMonth('${m}'); autoCloseMobileSidebar()" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-between ${
+                        active ? 'bg-brand-500 text-slate-950 shadow-lg shadow-brand-500/10 font-bold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                    }">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            ${m}
+                        </span>
+                        <span class="text-[9px] ${active ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-950 text-slate-500'} px-1.5 py-0.5 rounded font-mono">M${index + 1}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderWeekDropdown() {
+            if (weeksArray.length === 0) return;
+            const activeMonth = weeksArray[activeWeekIndex]?.monthName || MONTHS[0];
+            const filtered    = weeksArray.filter(w => w.monthName === activeMonth);
+
+            $('#weekNavList').innerHTML = filtered.map(wk => {
+                const active = wk.index === activeWeekIndex;
+                return `
+                    <button onclick="jumpToWeek(${wk.index}); autoCloseMobileSidebar()" class="w-full text-left px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
+                        active ? 'bg-slate-800 text-brand-500 font-bold border-l-2 border-brand-500' : 'text-slate-400 hover:bg-slate-855'
+                    }">Sem. ${wk.calendarWeek} (${fShort(wk.monday)} - ${fShort(wk.sunday)})</button>
+                `;
+            }).join('');
+
+            const activeWk = weeksArray[activeWeekIndex] || weeksArray[0];
+            if (viewMode === 'two-weeks') {
+                const wk2Idx = Math.min(activeWeekIndex + 1, weeksArray.length - 1);
+                $('#activePeriodLabel').innerText = `Quinzaine du ${fShort(activeWk.monday)} au ${fShort(weeksArray[wk2Idx].sunday)}`;
+            } else {
+                $('#activePeriodLabel').innerText = `Semaine du ${fShort(activeWk.monday)} au ${fShort(activeWk.sunday)}`;
+            }
+        }
+
+        /**
+         * Change le mode de vue (hebdo / quinzaine / mensuel).
+         * CORRECTIF : fonction manquante dans la version originale.
+         */
+        function setViewMode(mode) {
+            viewMode = mode;
+
+            const tabMap = { 'week': 'tabWeekBtn', 'two-weeks': 'tabTwoWeeksBtn', 'month': 'tabMonthBtn' };
+            Object.entries(tabMap).forEach(([m, id]) => {
+                const btn = $(`#${id}`);
+                if (!btn) return;
+                if (m === mode) {
+                    btn.classList.add('bg-slate-800', 'text-white', 'shadow');
+                    btn.classList.remove('text-slate-400');
+                } else {
+                    btn.classList.remove('bg-slate-800', 'text-white', 'shadow');
+                    btn.classList.add('text-slate-400');
+                }
+            });
+
+            renderActiveView();
+            renderWeekDropdown();
+        }
+
+        /**
+         * Bascule entre affichage grille et liste.
+         * CORRECTIF : fonction manquante dans la version originale.
+         */
+        function toggleLayoutMode() {
+            layoutMode = layoutMode === 'grid' ? 'list' : 'grid';
+            const icon = $('#gridIcon');
+            if (icon) {
+                icon.innerHTML = layoutMode === 'list'
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />';
+            }
+            renderActiveView();
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = $('#sidebarPanel');
+            const overlay = $('#sidebarOverlay');
+            const isOpen  = !sidebar.classList.contains('-translate-x-full');
+
+            if (isOpen) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden', 'opacity-0');
+                overlay.classList.remove('opacity-100');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    overlay.classList.add('opacity-100');
+                }, 10);
+            }
+        }
+
+        function autoCloseMobileSidebar() {
+            if (window.innerWidth < 1024) toggleMobileSidebar();
+        }
+
+        function renderActiveView() {
+            if (weeksArray.length === 0) return;
+            if (viewMode === 'week')       renderWeeklyView();
+            else if (viewMode === 'two-weeks') renderTwoWeeksView();
+            else                            renderMonthlyView();
+        }
+
+        function generateWeekHtml(wkIdx) {
+            const wk = weeksArray[wkIdx];
+            if (!wk) return '';
+            const gridClass = layoutMode === 'grid'
+                ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-4'
+                : 'flex flex-col gap-4';
+
+            const daysHtml = Array.from({length: 7}, (_, d) => {
+                const date = new Date(wk.monday);
+                date.setDate(date.getDate() + d);
+                const dStr = formatDateStr(date);
+                const day  = appState[dStr];
+                if (!day) return '';
+
+                const isToday  = formatDateStr(CURRENT_DATE) === dStr;
+                const theme    = THEMING[day.position] || THEMING['Lille'];
+                const conflict = mockGoogleAgenda[dStr] && mockGoogleAgenda[dStr].position !== day.position;
+
+                let cardBgClass     = "bg-slate-900/40";
+                let cardBorderClass = "border-slate-800/80";
+                if (day.formation && day.formation !== 'none') {
+                    cardBgClass = "bg-emerald-950/45"; cardBorderClass = "border-emerald-500/40";
+                } else if (['Repos', 'RTT', 'CP', 'Repos_JF'].includes(day.position)) {
+                    cardBgClass = "bg-blue-950/45"; cardBorderClass = "border-blue-500/40";
+                }
+
+                let logistiqueHtml = '';
+                if (day.regime !== 'Sur_place') {
+                    const details = {
+                        'Depart_LT_1630': ['Lille ➔ Tours (Voiture, 6h)', '16:30 - 22:30 | Tampon sécurité inclus'],
+                        'Depart_TL_17':   ['Tours ➔ Lille (Voiture, 6h)', '17:00 - 23:00 | Tampon sécurité inclus'],
+                        'Depart_matin':   ['Tours ➔ Lille (Matin)',        '03:30 - 09:30 | Arrivée direct bureau']
+                    }[day.regime] || ['Transit', 'Calcul en cours'];
+                    logistiqueHtml = `
+                        <div class="mt-3 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2.5 text-xs text-rose-300">
+                            <div class="flex items-center gap-1.5 font-bold text-rose-400">⚡ Transit : ${details[0]}</div>
+                            <p class="text-[10px] text-rose-400/80 mt-0.5">${details[1]}</p>
+                        </div>`;
+                }
+
+                if (day.position === 'Deplacement' && day.deplacement) {
+                    const dep = day.deplacement;
+                    const depLabel = dep.type === 'Acticampus' ? '🏭 Acticampus' : (dep.type === 'Site' ? '🏢 Site' : '🚗 Déplacement');
+                    logistiqueHtml = `
+                        <div class="mt-3 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2.5 text-xs text-amber-300">
+                            <div class="flex items-center gap-1.5 font-bold text-amber-400">${depLabel} : Lille ➔ ${dep.destination}</div>
+                            <p class="text-[10px] text-amber-400/80 mt-1">Durée : ${dep.duration}h</p>
+                        </div>`;
+                }
+
+                let formationBadge = '';
+                if (day.formation === 'visio') {
+                    formationBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">💻 Visio (${day.formationStart||'09:00'} - ${day.formationEnd||'17:00'})</span>`;
+                } else if (day.formation === 'presentiel') {
+                    formationBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">👨‍🏫 Session (${day.formationStart||'09:00'} - ${day.formationEnd||'17:00'})</span>`;
+                }
+
+                const chipsHtml = ['TT_Tours', 'Lille', 'Repos', 'RTT'].map(posKey => {
+                    const chipTheme  = THEMING[posKey];
+                    const isSelected = day.position === posKey;
+                    const label      = posKey === 'TT_Tours' ? 'TT' : posKey;
+                    return `
+                        <button onclick="updateDayProperty('${dStr}', 'position', '${posKey}')"
+                                class="px-2.5 py-1.5 text-[11px] font-bold rounded-lg transition duration-150 active:scale-95 flex items-center gap-1 ${
+                                    isSelected ? 'bg-white text-slate-950 font-extrabold shadow' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                                }">
+                            <span>${chipTheme.emoji}</span><span>${label}</span>
+                        </button>`;
+                }).join('');
+
+                return `
+                    <div class="relative ${cardBgClass} border ${cardBorderClass} rounded-xl flex flex-col justify-between hover:border-slate-700/80 transition-all duration-200 ${day.isLocked ? 'opacity-90 border-brand-500/30' : ''} ${isToday ? 'ring-2 ring-brand-500 bg-slate-950' : ''} ${day.regime !== 'Sur_place' ? 'border-l-4 ' + theme.border : ''}">
+                        ${isToday ? '<span class="absolute -top-2.5 left-4 px-2.5 py-0.5 bg-brand-500 text-slate-950 text-[10px] font-extrabold rounded-full uppercase tracking-wider z-10 shadow-lg shadow-brand-500/20">Aujourd\'hui</span>' : ''}
+                        <div class="p-4 flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start border-b border-slate-900 pb-3">
+                                    <div>
+                                        <h4 class="font-bold text-sm text-white">${DAYS_OF_WEEK_FR[d]}</h4>
+                                        <p class="text-[11px] text-slate-500">${fShort(date)}</p>
+                                    </div>
+                                    <div class="flex flex-col items-end gap-1">
+                                        <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">${day.isLocked ? '🔒 Validé' : '📝 Brouillon'}</span>
+                                        ${formationBadge}
+                                    </div>
+                                </div>
+
+                                ${conflict ? `
+                                    <div onclick="openConflictListModal()" class="mt-3 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 cursor-pointer rounded-lg p-2.5 text-xs text-amber-300 flex items-start gap-2 transition animate-pulse">
+                                        <span>⚠️</span>
+                                        <div>
+                                            <p class="font-bold text-amber-400">Écart Agenda Dalkia</p>
+                                            <p class="text-[10px] text-slate-400 mt-0.5">Agenda : ${THEMING[mockGoogleAgenda[dStr].position]?.tag || 'Activité'}</p>
+                                            <p class="text-[10px] text-amber-300 font-semibold underline mt-1.5">Corriger l'écart maintenant ➔</p>
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                <div class="mt-3">
+                                    <span class="block text-[9px] uppercase font-bold text-slate-500 mb-1.5">Présence Rapide</span>
+                                    <div class="flex flex-wrap gap-1.5">${chipsHtml}</div>
+                                </div>
+
+                                <div class="mt-4 space-y-3">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Activité Complète</label>
+                                            <select onchange="updateDayProperty('${dStr}', 'position', this.value)" class="w-full bg-slate-900/60 border border-slate-800 rounded-lg p-2 text-[11px] text-white focus:border-brand-500 focus:outline-none">
+                                                <option value="Lille"       ${day.position === 'Lille'       ? 'selected' : ''}>🏢 Lille Bureau</option>
+                                                <option value="TT_Tours"   ${day.position === 'TT_Tours'   ? 'selected' : ''}>🏠 TT Tours (Domicile)</option>
+                                                <option value="Acticampus" ${day.position === 'Acticampus' ? 'selected' : ''}>🏭 Acticampus Dalkia</option>
+                                                <option value="Hors_site"  ${day.position === 'Hors_site'  ? 'selected' : ''}>🌍 Hors site</option>
+                                                <option value="Repos"      ${day.position === 'Repos'      ? 'selected' : ''}>🛋️ Repos</option>
+                                                <option value="Repos_JF"   ${day.position === 'Repos_JF'   ? 'selected' : ''}>🎉 Repos JF (Jour Férié)</option>
+                                                <option value="RTT"        ${day.position === 'RTT'        ? 'selected' : ''}>⏳ RTT</option>
+                                                <option value="CP"         ${day.position === 'CP'         ? 'selected' : ''}>🌴 CP (Congé)</option>
+                                                <option value="Deplacement"${day.position === 'Deplacement'? 'selected' : ''}>🟧 Déplacement</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Régime logistique</label>
+                                            <select onchange="updateDayProperty('${dStr}', 'regime', this.value)" class="w-full bg-slate-900/60 border border-slate-800 rounded-lg p-2 text-[11px] text-white focus:border-brand-500 focus:outline-none">
+                                                <option value="Sur_place"      ${day.regime === 'Sur_place'      ? 'selected' : ''}>Sur place (Local)</option>
+                                                <option value="Depart_LT_1630" ${day.regime === 'Depart_LT_1630' ? 'selected' : ''}>Lille ➔ Tours (16h30)</option>
+                                                <option value="Depart_TL_17"   ${day.regime === 'Depart_TL_17'   ? 'selected' : ''}>Tours ➔ Lille (17h00)</option>
+                                                <option value="Depart_matin"   ${day.regime === 'Depart_matin'   ? 'selected' : ''}>Matin Tours ➔ Lille (03h30)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Formation & Événement</label>
+                                        <select onchange="updateDayProperty('${dStr}', 'formation', this.value)" class="w-full bg-slate-900/60 border border-slate-800 rounded-lg p-2 text-[11px] text-white focus:border-brand-500 focus:outline-none">
+                                            <option value="none"       ${!day.formation || day.formation === 'none'  ? 'selected' : ''}>Aucune formation</option>
+                                            <option value="visio"      ${day.formation === 'visio'      ? 'selected' : ''}>💻 Formation en Distanciel (Visio)</option>
+                                            <option value="presentiel" ${day.formation === 'presentiel' ? 'selected' : ''}>👨‍🏫 Session en Présentiel</option>
+                                        </select>
+                                    </div>
+
+                                    <div id="formationHours-${dStr}" class="${day.formation && day.formation !== 'none' ? 'grid' : 'hidden'} grid-cols-2 gap-2 mt-2">
+                                        <div>
+                                            <label class="block text-[9px] uppercase font-bold text-slate-400 mb-0.5">Heure Début</label>
+                                            <input type="time" value="${day.formationStart||'09:00'}" onchange="updateDayProperty('${dStr}', 'formationStart', this.value)" class="w-full bg-slate-900/60 border border-slate-800 rounded-lg p-1.5 text-[11px] text-white focus:border-brand-500 focus:outline-none">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[9px] uppercase font-bold text-slate-400 mb-0.5">Heure Fin</label>
+                                            <input type="time" value="${day.formationEnd||'17:00'}" onchange="updateDayProperty('${dStr}', 'formationEnd', this.value)" class="w-full bg-slate-900/60 border border-slate-800 rounded-lg p-1.5 text-[11px] text-white focus:border-brand-500 focus:outline-none">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                ${logistiqueHtml}
+                            </div>
+
+                            <div class="mt-4">
+                                <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Notes logistiques & planning</label>
+                                <textarea onblur="updateDayProperty('${dStr}', 'notes', this.value)" class="w-full h-14 bg-slate-900/80 border border-slate-800 rounded-lg p-2 text-[11px] text-slate-300 focus:border-brand-500 focus:outline-none resize-none" placeholder="Ajouter note logistique...">${day.notes||''}</textarea>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            const allLocked = Array.from({length: 7}, (_, d) => {
+                const date = new Date(wk.monday);
+                date.setDate(date.getDate() + d);
+                return appState[formatDateStr(date)]?.isLocked;
+            }).every(v => v);
+
+            return `
+                <div class="space-y-4 bg-slate-900/40 p-4 md:p-5 border border-slate-800 rounded-2xl">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-brand-500">Semaine ${wk.calendarWeek}</h3>
+                            <p class="text-xs text-slate-400">Du ${fShort(wk.monday)} au ${fShort(wk.sunday)}</p>
+                        </div>
+                        <button onclick="toggleWeekLockSpecific(${wk.index})" class="w-full sm:w-auto px-3.5 py-1.5 rounded-xl text-xs font-bold transition duration-200 ${
+                            allLocked ? 'bg-brand-500 text-slate-950 hover:bg-brand-400 shadow-md shadow-brand-500/10' : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                        }">
+                            ${allLocked ? '🔒 Déverrouiller la semaine' : '✔️ Valider & Archiver'}
+                        </button>
+                    </div>
+                    <div class="${gridClass}">${daysHtml}</div>
+                </div>`;
+        }
+
+        function renderWeeklyView() {
+            $('#viewContainer').innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-white">Planning de Transit Hebdomadaire</h2>
+                        <p class="text-xs text-slate-400">Suivi et organisation de vos trajets entre Tours & Lille Bureau</p>
+                    </div>
+                    ${generateWeekHtml(activeWeekIndex)}
+                </div>`;
+        }
+
+        function renderTwoWeeksView() {
+            let wk1 = activeWeekIndex;
+            let wk2 = activeWeekIndex + 1;
+            if (wk2 >= weeksArray.length) { wk1 = activeWeekIndex - 1; wk2 = activeWeekIndex; }
+
+            $('#viewContainer').innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-white">Visualisation Bi-Hebdomadaire</h2>
+                        <p class="text-xs text-slate-400">Suivi de quinzaine pour optimiser la récurrence des déplacements</p>
+                    </div>
+                    <div class="space-y-8">
+                        ${generateWeekHtml(wk1)}
+                        ${generateWeekHtml(wk2)}
+                    </div>
+                </div>`;
+        }
+
+        function renderMonthlyView() {
+            const activeMonth   = weeksArray[activeWeekIndex]?.monthName || MONTHS[0];
+            const currentWeeks  = weeksArray.filter(w => w.monthName === activeMonth);
+
+            const rows = currentWeeks.map(wk => {
+                let ttCount = 0, lilleCount = 0, depCount = 0;
+
+                const dayBadges = Array.from({length: 7}, (_, d) => {
+                    const date = new Date(wk.monday);
+                    date.setDate(date.getDate() + d);
+                    const dStr = formatDateStr(date);
+                    const day  = appState[dStr];
+                    if (!day) return '';
+
+                    if (['TT_Tours', 'Acticampus'].includes(day.position)) ttCount++;
+                    else if (day.position === 'Lille')       lilleCount++;
+                    else if (day.position === 'Deplacement') depCount++;
+
+                    const conflict = mockGoogleAgenda[dStr] && mockGoogleAgenda[dStr].position !== day.position;
+                    const notifDot = conflict
+                        ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-slate-950"></span>'
+                        : (day.regime !== 'Sur_place' ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-slate-950"></span>' : '');
+                    const formDot = day.formation === 'visio'
+                        ? '<span class="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-slate-950"></span>'
+                        : (day.formation === 'presentiel' ? '<span class="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-blue-400 rounded-full border-2 border-slate-950"></span>' : '');
+
+                    const mapColors = {
+                        'TT_Tours':    'bg-green-500/20 text-green-300 border border-green-500/10',
+                        'Acticampus':  'bg-teal-500/20 text-teal-300 border border-teal-500/10',
+                        'Lille':       'bg-blue-500/20 text-blue-300 border border-blue-500/10',
+                        'Hors_site':   'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20',
+                        'Repos':       'bg-slate-500/20 text-slate-300 border border-slate-500/10',
+                        'Repos_JF':    'bg-indigo-500/20 text-indigo-300 border border-indigo-500/10',
+                        'RTT':         'bg-purple-500/20 text-purple-300 border border-purple-500/10',
+                        'CP':          'bg-pink-500/20 text-pink-300 border border-pink-500/10',
+                        'Deplacement': 'bg-amber-500/20 text-amber-300 border border-amber-500/10'
+                    };
+
+                    return `
+                        <div class="relative group cursor-pointer" onclick="jumpToWeek(${wk.index})">
+                            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold ${mapColors[day.position]||'bg-slate-800'}" title="${THEMING[day.position]?.tag||''}">
+                                ${THEMING[day.position]?.emoji||'🏢'}
+                            </div>
+                            ${notifDot}${formDot}
+                        </div>`;
+                }).join('');
+
+                return `
+                    <tr class="hover:bg-slate-900/60 transition cursor-pointer" onclick="jumpToWeek(${wk.index})">
+                        <td class="p-4 text-xs font-bold text-slate-400 font-mono">Semaine ${wk.calendarWeek}</td>
+                        <td class="p-4">
+                            <div class="text-sm font-bold text-white whitespace-nowrap">${fShort(wk.monday)} - ${fShort(wk.sunday)}</div>
+                            <div class="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                                <span class="bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">${ttCount}🏠 TT</span>
+                                <span class="bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">${lilleCount}🏢 Lille</span>
+                                <span class="bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">${depCount}🚗 Dépl.</span>
+                            </div>
+                        </td>
+                        <td class="p-4"><div class="flex items-center gap-2">${dayBadges}</div></td>
+                        <td class="p-4 text-right">
+                            <span class="text-xs text-brand-500 font-bold bg-brand-500/10 border border-brand-500/20 px-3 py-1.5 rounded-lg hover:bg-brand-500 hover:text-slate-950 transition duration-150 whitespace-nowrap">Gérer ➔</span>
+                        </td>
+                    </tr>`;
+            }).join('');
+
+            // CORRECTIF : activeMonth contient déjà l'année ("Juin 2026"), pas besoin d'ajouter "2026"
+            $('#viewContainer').innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-white">Vue d'ensemble : ${activeMonth}</h2>
+                        <p class="text-xs text-slate-400">Cartographie complète de votre logistique de transport et de vos présences</p>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-x-auto shadow-xl">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead>
+                                <tr class="bg-slate-900 border-b border-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                    <th class="p-4 w-28">Semaine</th>
+                                    <th class="p-4">Période d'activité</th>
+                                    <th class="p-4">Calendrier Hebdomadaire (Lun - Dim)</th>
+                                    <th class="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-900/60">${rows}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        // --- INTERACTIONS ---
+
+        function updateDayProperty(dateStr, key, value) {
+            if (!appState[dateStr]) return;
+
+            appState[dateStr][key] = value;
+
+            if (key === 'position' && ['Repos', 'Repos_JF', 'RTT', 'CP'].includes(value)) {
+                appState[dateStr].regime = 'Sur_place';
+            } else if (key === 'regime') {
+                appState[dateStr].isManualRegime = true;
+            }
+
+            if (key === 'formation') {
+                const block = document.getElementById(`formationHours-${dateStr}`);
+                if (block) {
+                    block.classList.toggle('hidden', value === 'none');
+                    block.classList.toggle('grid',   value !== 'none');
+                }
+            }
+
+            recalculateAllTravels();
+            renderAll();
+
+            if (IS_GAS_ENV) {
+                google.script.run
+                    .withFailureHandler(err => console.warn("Échec synchro immédiate : " + err.message))
+                    .syncSingleDayToGoogleCalendar(dateStr, JSON.stringify(appState[dateStr]));
+            }
+        }
+
+        function toggleWeekLockSpecific(wkIdx) {
+            const wk = weeksArray[wkIdx];
+            if (!wk) return;
+            const list = Array.from({length: 7}, (_, d) => {
+                const date = new Date(wk.monday);
+                date.setDate(date.getDate() + d);
+                return appState[formatDateStr(date)];
+            });
+            const allLocked = list.every(d => d && d.isLocked);
+            list.forEach(d => { if (d) d.isLocked = !allLocked; });
+            saveData();
+            renderActiveView();
+            showToast(allLocked ? `Semaine ${wk.calendarWeek} passée en brouillon.` : `Semaine ${wk.calendarWeek} validée et sécurisée !`);
+        }
+
+        function validateAllWeeks() {
+            const dayKeys = Object.keys(appState);
+            if (dayKeys.length === 0) { showToast("Aucune donnée à valider."); return; }
+            dayKeys.forEach(dateStr => { if (appState[dateStr]) appState[dateStr].isLocked = true; });
+            saveData();
+            renderActiveView();
+            showToast("Toutes les semaines ont été validées et archivées avec succès ! 🔒");
+        }
+
+        function updateKpis() {
+            if (weeksArray.length === 0) return;
+            const activeMonth = weeksArray[activeWeekIndex]?.monthName || MONTHS[0];
+            const filtered    = weeksArray.filter(w => w.monthName === activeMonth);
+            let routeHours = 0, ttDays = 0;
+
+            filtered.forEach(wk => {
+                for (let d = 0; d < 7; d++) {
+                    const date = new Date(wk.monday);
+                    date.setDate(date.getDate() + d);
+                    const day = appState[formatDateStr(date)];
+                    if (!day) continue;
+                    if (['Depart_LT_1630', 'Depart_TL_17', 'Depart_matin'].includes(day.regime)) routeHours += 6;
+                    if (day.position === 'Deplacement' && day.deplacement) routeHours += parseFloat(day.deplacement.duration);
+                    if (['TT_Tours', 'Acticampus'].includes(day.position)) ttDays++;
+                }
+            });
+
+            $('#kpiRouteHours').innerText = `${routeHours}h`;
+            $('#kpiTtDays').innerText     = `${ttDays}j`;
+        }
+
+        function toggleModal(id, show) {
+            $(`#${id}`).classList.toggle('hidden', !show);
+        }
+
+        function selectMonth(monthName) {
+            const idx = weeksArray.findIndex(w => w.monthName === monthName);
+            if (idx !== -1) {
+                activeWeekIndex = idx;
+                recalculateAllTravels();
+                renderAll();
+            }
+        }
+
+        function jumpToWeek(idx) {
+            activeWeekIndex = idx;
+            setViewMode('week');
+        }
+
+        function changeWeek(direction) {
+            const step    = viewMode === 'two-weeks' ? 2 : 1;
+            const nextIdx = activeWeekIndex + (direction * step);
+            if (nextIdx >= 0 && nextIdx < weeksArray.length) {
+                activeWeekIndex = nextIdx;
+                recalculateAllTravels();
+                renderAll();
+            }
+        }
+
+        function checkConflicts() {
+            const conflicts = Object.keys(mockGoogleAgenda).filter(dateStr => {
+                const day = appState[dateStr];
+                return day && day.position !== mockGoogleAgenda[dateStr].position;
+            });
+
+            const btn  = $('#globalWarningBtn');
+            const text = $('#globalWarningText');
+            if (conflicts.length > 0) {
+                if (text) text.textContent = `⚠️ ${conflicts.length} écart${conflicts.length > 1 ? 's' : ''} !`;
+                btn.classList.remove('hidden');
+                btn.classList.add('flex');
+            } else {
+                btn.classList.add('hidden');
+                btn.classList.remove('flex');
+            }
+        }
+
+        function openConflictListModal() {
+            const conflicts = Object.keys(mockGoogleAgenda).filter(dateStr => {
+                const day = appState[dateStr];
+                return day && day.position !== mockGoogleAgenda[dateStr].position;
+            });
+
+            $('#conflictSummaryCount').innerText = `${conflicts.length} écart(s) d'agenda détecté(s)`;
+
+            const container = $('#conflictListContainer');
+            if (conflicts.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-8 text-center space-y-2">
+                        <span class="text-3xl">🎉</span>
+                        <p class="text-sm font-bold text-white">Aucun écart détecté !</p>
+                        <p class="text-xs text-slate-400">Votre agenda Google Pro et votre application Co-Pilote sont parfaitement synchronisés.</p>
+                    </div>`;
+            } else {
+                container.innerHTML = conflicts.map(dateStr => {
+                    const appDay     = appState[dateStr];
+                    const agendaDay  = mockGoogleAgenda[dateStr];
+                    const dateObj    = parseDateLocal(dateStr);
+                    const agendaTheme = THEMING[agendaDay.position] || THEMING['Lille'];
+                    const appTheme    = THEMING[appDay.position]    || THEMING['Lille'];
+
+                    return `
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 transition hover:border-slate-700/80">
+                            <div class="shrink-0 min-w-[140px]">
+                                <h4 class="font-bold text-sm text-white">${DAYS_OF_WEEK_FR[dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1]}</h4>
+                                <p class="text-xs text-slate-500">${fShort(dateObj)}</p>
+                                <span class="text-[9px] bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded text-slate-400 block w-max mt-1">Sem. ${getISOWeek(dateObj)}</span>
+                            </div>
+                            <div class="flex-1 grid grid-cols-2 gap-3">
+                                <div class="border-l-2 ${agendaTheme.border} pl-2.5">
+                                    <span class="text-[9px] font-bold text-blue-400 uppercase block tracking-wider mb-0.5">Agenda Pro</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-sm">${agendaTheme.emoji}</span>
+                                        <span class="text-xs font-semibold text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">${agendaTheme.tag}</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 overflow-hidden text-ellipsis max-w-[130px] whitespace-nowrap">${agendaDay.title||'Séminaire / Réunion'}</p>
+                                </div>
+                                <div class="border-l-2 ${appTheme.border} pl-2.5">
+                                    <span class="text-[9px] font-bold text-emerald-400 uppercase block tracking-wider mb-0.5">Saisie Co-Pilote</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-sm">${appTheme.emoji}</span>
+                                        <span class="text-xs font-semibold text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">${appTheme.tag}</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 overflow-hidden text-ellipsis max-w-[130px] whitespace-nowrap">${appDay.notes||'Aucune note'}</p>
+                                </div>
+                            </div>
+                            <div class="flex md:flex-col justify-end gap-1.5 shrink-0 pt-2 md:pt-0 border-t border-slate-900 md:border-t-0">
+                                <button onclick="resolveSingleConflict('${dateStr}', true)" class="flex-1 md:flex-none px-2.5 py-1.5 bg-slate-900 hover:bg-slate-850 text-[10px] font-bold text-slate-300 border border-slate-700 rounded-lg transition active:scale-95">
+                                    ✔️ Garder Co-Pilote
+                                </button>
+                                <button onclick="resolveSingleConflict('${dateStr}', false)" class="flex-1 md:flex-none px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-[10px] font-bold text-amber-300 border border-amber-500/30 rounded-lg transition active:scale-95">
+                                    🔄 Aligner l'app
+                                </button>
+                            </div>
+                        </div>`;
+                }).join('');
+            }
+            toggleModal('conflictModal', true);
+        }
+
+        function resolveSingleConflict(dateStr, keepApp) {
+            if (keepApp) {
+                mockGoogleAgenda[dateStr] = {
+                    position: appState[dateStr].position,
+                    title:    `Validé via Co-Pilote : ${THEMING[appState[dateStr].position].tag}`
+                };
+                showToast(`Agenda Pro écrasé pour le ${fShort(parseDateLocal(dateStr))}.`);
+            } else {
+                appState[dateStr].position = mockGoogleAgenda[dateStr].position;
+                appState[dateStr].isLocked = true;
+                showToast(`Application mise en conformité pour le ${fShort(parseDateLocal(dateStr))}.`);
+            }
+            recalculateAllTravels();
+            renderAll();
+            toggleModal('conflictModal', false);
+        }
+
+        function resolveAllConflicts(keepApp) {
+            const conflicts = Object.keys(mockGoogleAgenda).filter(dateStr => {
+                const day = appState[dateStr];
+                return day && day.position !== mockGoogleAgenda[dateStr].position;
+            });
+            if (conflicts.length === 0) return;
+
+            conflicts.forEach(dateStr => {
+                if (keepApp) {
+                    mockGoogleAgenda[dateStr] = {
+                        position: appState[dateStr].position,
+                        title:    `Validé via Co-Pilote : ${THEMING[appState[dateStr].position].tag}`
+                    };
+                } else {
+                    appState[dateStr].position = mockGoogleAgenda[dateStr].position;
+                    appState[dateStr].isLocked = true;
+                }
+            });
+
+            recalculateAllTravels();
+            renderAll();
+            toggleModal('conflictModal', false);
+            showToast(keepApp ? "Tous les écarts réglés en faveur de l'application !" : "Toutes les dates alignées sur votre agenda pro.");
+        }
+
+        function handleDeplacementSubmit(event) {
+            event.preventDefault();
+            const dateVal  = $('#depDate').value;
+            const dest     = $('#depDest').value;
+            const duration = parseFloat($('#depDuration').value);
+            const typeVal  = $('#depType').value;
+
+            if (!dateVal) return;
+
+            // CORRECTIF : parse manuel pour éviter le décalage de fuseau horaire UTC vs local
+            const dStr = dateVal; // déjà au format YYYY-MM-DD, pas besoin de reformater
+            if (!appState[dStr]) { showToast("Cette date n'est pas dans votre planning."); return; }
+
+            appState[dStr].position   = 'Deplacement';
+            appState[dStr].deplacement = { destination: dest, duration, type: typeVal };
+
+            toggleModal('deplacementModal', false);
+            activeWeekIndex = findWeekIdx(parseDateLocal(dateVal));
+            recalculateAllTravels();
+            renderAll();
+            showToast(`Déplacement planifié vers ${dest} !`);
+        }
+
+        /**
+         * Export vers Google Agenda (GAS) ou téléchargement ICS (hors ligne).
+         * CORRECTIF : passe startStr/endStr à syncAllToGoogleCalendar (manquants dans la version originale).
+         */
+        function triggerCalendarSync() {
+            if (IS_GAS_ENV) {
+                showToast("Synchronisation en cours avec votre Google Agenda...");
+                const dateKeys = Object.keys(appState).sort();
+                const startStr = dateKeys[0]                    || formatDateStr(new Date());
+                const endStr   = dateKeys[dateKeys.length - 1]  || formatDateStr(new Date());
+
+                google.script.run
+                    .withSuccessHandler(() => showToast("🎉 Agenda mis à jour avec succès !"))
+                    .withFailureHandler(err => showToast("❌ Erreur de synchro : " + err.message))
+                    .syncAllToGoogleCalendar(JSON.stringify(appState), startStr, endStr);
+            } else {
+                exportToICS();
+            }
+        }
+
+        function triggerWorkspaceScan() {
+            const modal      = $('#scanModal');
+            const consoleBox = $('#scanConsole');
+            const bar        = $('#scanProgressBar');
+
+            modal.classList.remove('hidden');
+            consoleBox.innerHTML = '';
+            bar.style.width = '0%';
+
+            const logs = [
+                'Lancement du protocole de synchronisation cryptée...',
+                "Vérification des droits d'accès à dalkia.fr (OK)...",
+                'Analyse de la boîte de réception Gmail Professionnelle...',
+                'Recherche de mots-clés logistiques ("Séminaire", "Tours", "Lille", "Soutenance")...'
+            ];
+
+            let idx = 0;
+            const timer = setInterval(() => {
+                if (idx < logs.length) {
+                    const log = document.createElement('div');
+                    log.className = 'text-emerald-400';
+                    log.innerText = `> ${logs[idx]}`;
+                    consoleBox.appendChild(log);
+                    consoleBox.scrollTop = consoleBox.scrollHeight;
+                    bar.style.width = `${((idx + 1) / (logs.length + 3)) * 100}%`;
+                    idx++;
+                } else {
+                    clearInterval(timer);
+
+                    if (IS_GAS_ENV) {
+                        const log = document.createElement('div');
+                        log.className = 'text-emerald-400 font-bold';
+                        log.innerText = '> Connexion au serveur de messagerie active. Scan en cours...';
+                        consoleBox.appendChild(log);
+
+                        google.script.run
+                            .withSuccessHandler(function(detectedJson) {
+                                const detected = JSON.parse(detectedJson);
+                                bar.style.width = '90%';
+
+                                if (detected.length > 0) {
+                                    detected.forEach(evt => {
+                                        const item = document.createElement('div');
+                                        item.className = 'text-amber-400 font-bold';
+                                        item.innerText = `> 📅 Déplacement trouvé ! Date: ${evt.date} | Destination: ${evt.destination}`;
+                                        consoleBox.appendChild(item);
+
+                                        // CORRECTIF : vérification que la date existe dans appState
+                                        if (appState[evt.date]) {
+                                            appState[evt.date].position   = 'Deplacement';
+                                            appState[evt.date].deplacement = { destination: evt.destination, duration: 1.5, type: evt.type };
+                                        }
+                                    });
+                                    recalculateAllTravels();
+                                    renderAll();
+                                    showToast(`${detected.length} déplacement(s) synchronisé(s) depuis Gmail !`);
+                                } else {
+                                    const item = document.createElement('div');
+                                    item.className = 'text-slate-400';
+                                    item.innerText = "> Aucun déplacement non planifié n'a été détecté dans Gmail.";
+                                    consoleBox.appendChild(item);
+                                }
+                                finalizeScanConsole(consoleBox, bar, modal);
+                            })
+                            .withFailureHandler(function(err) {
+                                const item = document.createElement('div');
+                                item.className = 'text-red-400';
+                                item.innerText = `> Erreur de lecture : ${err.message}`;
+                                consoleBox.appendChild(item);
+                                finalizeScanConsole(consoleBox, bar, modal);
+                            })
+                            .scanWorkspaceGmail();
+                    } else {
+                        const mockLogs = [
+                            '⚠️ Événement détecté hors-planning : "Comité National Dalkia"',
+                            '📅 Date identifiée : Mercredi 8 Juillet 2026',
+                            '📍 Lieu de convocation : Paris Île-de-France',
+                            'Enregistrement de la nouvelle logistique dans vos brouillons...'
+                        ];
+
+                        let sIdx = 0;
+                        const simTimer = setInterval(() => {
+                            if (sIdx < mockLogs.length) {
+                                const log = document.createElement('div');
+                                log.className = sIdx < 3 ? 'text-amber-400 font-bold' : 'text-emerald-400';
+                                log.innerText = `> ${mockLogs[sIdx]}`;
+                                consoleBox.appendChild(log);
+                                consoleBox.scrollTop = consoleBox.scrollHeight;
+                                bar.style.width = `${((logs.length + sIdx + 1) / (logs.length + mockLogs.length)) * 100}%`;
+                                sIdx++;
+                            } else {
+                                clearInterval(simTimer);
+                                const dStr = '2026-07-08';
+                                mockGoogleAgenda[dStr]     = { position: 'Deplacement', title: 'Comité National Dalkia - Paris' };
+                                if (appState[dStr]) {
+                                    appState[dStr].position    = 'Deplacement';
+                                    appState[dStr].deplacement = { destination: 'Paris IDF', duration: 1.5, type: 'Site' };
+                                }
+                                activeWeekIndex = findWeekIdx(parseDateLocal(dStr));
+                                recalculateAllTravels();
+                                renderAll();
+                                showToast("Scan Workspace : Comité National à Paris programmé !");
+                                finalizeScanConsole(consoleBox, bar, modal);
+                            }
+                        }, 300);
+                    }
+                }
+            }, 300);
+        }
+
+        function finalizeScanConsole(consoleBox, bar, modal) {
+            const log = document.createElement('div');
+            log.className = 'text-emerald-400 font-bold';
+            log.innerText = '> Scan terminé. Synchronisation achevée !';
+            consoleBox.appendChild(log);
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+            bar.style.width = '100%';
+            setTimeout(() => modal.classList.add('hidden'), 1000);
+        }
+
+        /**
+         * Exporte au format ICS.
+         * CORRECTIF : UID ajouté à chaque VEVENT (requis par la spec ICS).
+         * CORRECTIF : URL.revokeObjectURL() pour éviter la fuite mémoire.
+         */
+        function exportToICS() {
+            try {
+                const icsLines = [
+                    'BEGIN:VCALENDAR',
+                    'VERSION:2.0',
+                    'PRODID:-//Dalkia Co-Pilote Logistique//FR',
+                    'CALSCALE:GREGORIAN',
+                    'METHOD:PUBLISH'
+                ];
+
+                for (const dateStr in appState) {
+                    const day = appState[dateStr];
+                    if (['Repos', 'Repos_JF'].includes(day.position)) continue;
+
+                    const rawDate    = dateStr.replace(/-/g, '');
+                    const theme      = THEMING[day.position] || THEMING['Lille'];
+                    const nextRaw    = getNextDayStr(dateStr).replace(/-/g, '');
+
+                    let desc = `Position : ${theme.tag}\\nRégime logistique : ${day.regime}`;
+                    if (day.formation !== 'none') {
+                        desc += `\\nFormation : ${day.formation === 'visio' ? '💻 Distanciel (Visio)' : '👨‍🏫 Présentiel'}`;
+                        desc += ` (de ${day.formationStart||'09:00'} à ${day.formationEnd||'17:00'})`;
+                    }
+                    if (day.notes) desc += `\\nNotes : ${day.notes}`;
+
+                    icsLines.push('BEGIN:VEVENT');
+                    icsLines.push(`UID:${dateStr}-copilote@dalkia.fr`);
+                    icsLines.push(`DTSTART;VALUE=DATE:${rawDate}`);
+                    icsLines.push(`DTEND;VALUE=DATE:${nextRaw}`);
+                    icsLines.push(`SUMMARY:${theme.emoji} Co-Pilote: ${theme.tag}`);
+                    icsLines.push(`DESCRIPTION:${desc}`);
+                    icsLines.push('END:VEVENT');
+                }
+
+                icsLines.push('END:VCALENDAR');
+
+                const blob = new Blob([icsLines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+                const url  = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href     = url;
+                link.download = `planning_copilote_dalkia_${Date.now()}.ics`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url); // CORRECTIF : libération mémoire
+
+                showToast("Fichier .ics téléchargé ! Prêt à être importé dans Outlook/Google.");
+            } catch(err) {
+                showToast("Erreur lors de la génération du fichier calendrier.");
+            }
+        }
+
+        function exportBackupData() {
+            const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
+            const url  = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href     = url;
+            link.download = `copilote_backup_${Date.now()}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast("Sauvegarde JSON exportée.");
+        }
+
+        function importBackupData(event) {
+            const input  = event.target;
+            const reader = new FileReader();
+            reader.onload = function() {
+                try {
+                    const imported = JSON.parse(reader.result);
+                    if (imported && typeof imported === 'object') {
+                        appState = { ...appState, ...imported };
+                        saveData();
+                        recalculateAllTravels();
+                        renderAll();
+                        showToast("Importation réussie avec succès !");
+                    } else {
+                        showToast("Fichier invalide ou corrompu.");
+                    }
+                } catch(e) {
+                    showToast("Impossible de lire ce fichier.");
+                }
+            };
+            if (input.files.length > 0) reader.readAsText(input.files[0]);
+        }
+
+        function showToast(msg) {
+            const container = $('#toastContainer');
+            const toast     = document.createElement('div');
+            toast.className = "bg-slate-900 border border-slate-800 text-slate-100 text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 pointer-events-auto transition duration-300 transform translate-y-2 opacity-0 font-medium";
+            toast.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span><span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 50);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
