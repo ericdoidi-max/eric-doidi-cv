@@ -5,6 +5,7 @@ import DashboardView from './components/views/DashboardView';
 import LogsView from './components/views/LogsView';
 import SpecsView from './components/views/SpecsView';
 import CommView from './components/views/CommView';
+import DogHeartRateView from './components/views/DogHeartRateView';
 import { ViewState } from './types';
 
 const App: React.FC = () => {
@@ -20,6 +21,8 @@ const App: React.FC = () => {
         return <SpecsView />;
       case ViewState.COMMUNICATION:
         return <CommView />;
+      case ViewState.DOG_MONITOR:
+        return <DogHeartRateView />;
       default:
         return <DashboardView onChangeView={setCurrentView} />;
     }

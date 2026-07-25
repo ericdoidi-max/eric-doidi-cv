@@ -34,4 +34,17 @@ export enum ViewState {
   LOGS = 'LOGS', // Experience
   SPECS = 'SPECS', // Skills & Formation
   COMMUNICATION = 'COMMUNICATION', // Chat & Contact
+  DOG_MONITOR = 'DOG_MONITOR', // Dog respiratory/heart rate monitor
+}
+
+export type DogSize = 'small' | 'medium' | 'large';
+
+export interface DogHeartRateReading {
+  id: string;
+  timestampIso: string;
+  dogName: string;
+  respiratoryRate: number; // breaths per minute
+  ratio: number; // HR:RR ratio used for the estimate
+  estimatedHeartRate: number; // beats per minute
+  notes?: string;
 }

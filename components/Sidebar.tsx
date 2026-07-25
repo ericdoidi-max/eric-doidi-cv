@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ViewState } from '../types';
-import { LayoutDashboard, ClipboardList, Cpu, MessageSquare, UserCircle } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, Cpu, MessageSquare, UserCircle, HeartPulse } from 'lucide-react';
 
 interface SidebarProps {
   currentView: ViewState;
@@ -15,6 +15,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView }) => {
     { id: ViewState.LOGS, label: 'HISTORIQUE OP.', icon: ClipboardList },
     { id: ViewState.SPECS, label: 'SPÉCIFICATIONS', icon: Cpu },
     { id: ViewState.COMMUNICATION, label: 'COMM / IA', icon: MessageSquare },
+    { id: ViewState.DOG_MONITOR, label: 'FC CHIEN', icon: HeartPulse },
   ];
 
   return (
